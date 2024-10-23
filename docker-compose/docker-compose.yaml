@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  currency-service:
+    image: niles/currency:1.0.0
+    ports:
+      - "8080:8080"   # Expose currency-service on port 8080
+    networks:
+      - currency-exchange-network
+
+  exchange-service:
+    image: niles/exchange:1.0.0
+    ports:
+      - "8081:8081"   # Expose exchange-service on port 8081
+    environment:
+      - MP_REST_CLIENT_CURRENCYSERVICECLIENT_URL=http://currency-service:8080  # Change to use service name
+    networks:
+      - currency-exchange-network
+
+networks:
+  currency-exchange-network:
+    driver: bridge

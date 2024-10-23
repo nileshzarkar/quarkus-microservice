@@ -6,7 +6,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 
-@RegisterRestClient(baseUri = "http://localhost:8080")  // Adjust this to the actual Currency Service URL
+@RegisterRestClient(baseUri = "http://currency-service:8080")  // Adjust this to the actual Currency Service URL
 public interface CurrencyServiceClient {
 
     @GET
