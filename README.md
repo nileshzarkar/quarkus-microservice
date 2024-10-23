@@ -98,5 +98,98 @@ docker-compose up
 
 =========================
 
+kubectl config get-contexts
+kubectl config use-context docker-desktop
+kubectl get nodes
 
- 
+
+
+
+currency-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currency-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: currency
+  template:
+    metadata:
+      labels:
+        app: currency
+    spec:
+      containers:
+        - name: currency-container
+          image: niles/currency:1.0.0  # Replace with your actual image name
+          ports:
+            - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: currency-service
+spec:
+  selector:
+    app: currency
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080  # Expose port 30080 on the node (localhost)
+  type: NodePort
+
+
+exchange-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exchange-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exchange
+  template:
+    metadata:
+      labels:
+        app: exchange
+    spec:
+      containers:
+        - name: exchange-container
+          image: niles/exchange:1.0.0  # Replace with your actual image name
+          ports:
+            - containerPort: 8081
+          env:
+            - name: MP_REST_CLIENT_CURRENCYSERVICECLIENT_URL
+              value: "http://currency-service:8080"  # Use the Kubernetes service name to communicate with currency
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exchange-service
+spec:
+  selector:
+    app: exchange
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+      nodePort: 30081  # Expose port 30081 on the node (localhost)
+  type: NodePort
+
+
+kubectl apply -f currency-deployment.yaml
+kubectl apply -f .\exchange-deployment.yaml 
+
+POST http://localhost:30080/currency/exchange-rate
+{"fromCurrency": "USD", "toCurrency": "EUR", "rate": 0.85}
+
+GET http://localhost:30080/currency/exchange-rate/USD/EUR
+
+POST http://localhost:30081/exchange/USD/EUR/1
+POST http://localhost:30081/exchange/USD/EUR/2
+

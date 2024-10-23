@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exchange-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exchange
+  template:
+    metadata:
+      labels:
+        app: exchange
+    spec:
+      containers:
+        - name: exchange-container
+          image: niles/exchange:1.0.0  # Replace with your actual image name
+          ports:
+            - containerPort: 8081
+          env:
+            - name: MP_REST_CLIENT_CURRENCYSERVICECLIENT_URL
+              value: "http://currency-service:8080"  # Use the Kubernetes service name to communicate with currency
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exchange-service
+spec:
+  selector:
+    app: exchange
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+      nodePort: 30081  # Expose port 30081 on the node (localhost)
+  type: NodePort
