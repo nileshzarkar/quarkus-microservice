@@ -12,6 +12,11 @@ GET http://localhost:8080/currency/exchange-rate/USD/EUR
 POST http://localhost:8081/exchange/USD/EUR/1
 POST http://localhost:8081/exchange/USD/EUR/2
 
+Note while running usinf mvn quarkus:dev : 
+@RegisterRestClient(baseUri = "http://localhost:8080")  // Adjust this to the actual Currency Service URL
+
+git config --global core.autocrlf false
+
 =========================
 
 Creating a docker image of these microservices without creating a docker file 
@@ -61,3 +66,37 @@ push the image using:
 =========================
 
 
+Note while running using docker-compose :
+@RegisterRestClient(baseUri = "http://currency-service:8080")  // Adjust this to the actual Currency Service URL
+
+mp.rest.client.CurrencyServiceClient.url=http://currency-service:8080
+
+version: '3.8'
+services:
+  currency-service:
+    image: niles/currency:1.0.0
+    ports:
+      - "8080:8080"   # Expose currency-service on port 8080
+    networks:
+      - currency-exchange-network
+
+  exchange-service:
+    image: niles/exchange:1.0.0
+    ports:
+      - "8081:8081"   # Expose exchange-service on port 8081
+    environment:
+      - MP_REST_CLIENT_CURRENCYSERVICECLIENT_URL=http://currency-service:8080  # Change to use service name
+    networks:
+      - currency-exchange-network
+
+networks:
+  currency-exchange-network:
+    driver: bridge
+
+
+docker-compose up
+
+=========================
+
+
+ 
