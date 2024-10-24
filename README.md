@@ -185,6 +185,9 @@ spec:
 kubectl apply -f currency-deployment.yaml
 kubectl apply -f .\exchange-deployment.yaml 
 
+kubectl delete -f currency-deployment.yaml
+kubectl delete -f .\exchange-deployment.yaml 
+
 POST http://localhost:30080/currency/exchange-rate
 {"fromCurrency": "USD", "toCurrency": "EUR", "rate": 0.85}
 
@@ -192,4 +195,127 @@ GET http://localhost:30080/currency/exchange-rate/USD/EUR
 
 POST http://localhost:30081/exchange/USD/EUR/1
 POST http://localhost:30081/exchange/USD/EUR/2
+
+=====================
+
+To monitor your microservices in Kubernetes using Prometheus on Docker Desktop, you can follow these steps. Helm makes it easier to install and manage Prometheus in your Kubernetes environment.
+Steps to Set Up Prometheus Using Helm:
+1. Ensure Helm is Installed
+
+First, ensure you have Helm installed. You can verify by running:
+
+helm version
+Add below dependencies to curency and exchange microservices and create new image 
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-micrometer</artifactId>
+</dependency>
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+</dependency>
+
+
+2. Add the Prometheus Helm Chart Repository
+
+Add the official Prometheus Helm chart repository to Helm:
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+This adds the repository that contains Prometheus charts.
+
+3. Install Prometheus Using Helm
+
+Install Prometheus in your Kubernetes cluster using the following Helm command:
+
+helm install prometheus prometheus-community/prometheus
+
+This will install Prometheus using the default configuration. The release name is prometheus, and the Prometheus components (server, alert manager, etc.) will be deployed in your Kubernetes cluster.
+
+4. Verify Prometheus Deployment
+
+You can check if Prometheus was successfully deployed by listing the pods and services:
+
+kubectl get pods
+
+This should show several Prometheus components, such as prometheus-server, prometheus-alertmanager, etc.
+
+kubectl get svc
+
+You should see a service named prometheus-server, which exposes the Prometheus UI.
+
+5. Access the Prometheus UI
+
+Since you are using Docker Desktop, you can use port-forwarding to access the Prometheus UI from your local machine.
+
+To forward port 9090 (Prometheus default UI port) to your local machine, run:
+kubectl edit svc prometheus-server
+ports:
+  - protocol: TCP
+    port: 9090
+    targetPort: 9090
+
+kubectl port-forward service/prometheus-server 9090:9090
+
+Now, you can access the Prometheus UI in your browser by going to:
+
+http://localhost:9090
+
+6. Configure Prometheus to Scrape Your Microservices
+
+Prometheus needs to be configured to scrape metrics from your microservices. By default, Quarkus exposes metrics at /q/metrics, but you need to tell Prometheus where to find these endpoints.
+
+To do this, you'll need to modify the Prometheus prometheus.yml configuration file. In Helm, you can override the default configuration using values when installing or updating the Helm chart.
+
+To scrape your services, create a file prometheus-values.yaml with the following content:
+
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+      - job_name: 'currency-service'
+	    metrics_path: '/q/metrics'
+        static_configs:
+          - targets: ['currency-service:8080']
+
+      - job_name: 'exchange-service'
+	    metrics_path: '/q/metrics'
+        static_configs:
+          - targets: ['exchange-service:8081']
+
+The above configuration tells Prometheus to scrape the currency-service at port 8080 and the exchange-service at port 8081.
+
+7. Apply the Custom Configuration
+
+To apply this configuration, run the following command using Helm:
+kubectl edit svc prometheus-server
+server:
+  service:
+    ports:
+      - name: web  # Rename the port to something unique
+        port: 9090
+        targetPort: 9090
+
+helm upgrade --install prometheus prometheus-community/prometheus -f prometheus-values.yaml
+
+This will update the Prometheus installation with the custom scrape configuration, so it starts monitoring your microservices.
+
+8. Verify Metrics Collection
+
+Once you've applied the configuration, go back to the Prometheus UI (http://localhost:9090) and go to the Targets page (http://localhost:9090/targets). You should see your currency-service and exchange-service listed as active targets.
+
+You can also query for specific metrics using the Graph tab in Prometheus. Quarkus exposes many built-in metrics, such as:
+
+    http_server_requests_seconds_count (number of HTTP requests)
+    jvm_memory_used_bytes (JVM memory usage)
+
+You can start querying these metrics to monitor your services.
+
+
+
+
+
+
+
+
 
