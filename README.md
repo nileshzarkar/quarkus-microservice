@@ -42,6 +42,10 @@ quarkus.container-image.build=true
 quarkus.container-image.name=currency
 quarkus.container-image.tag=1.0.0
 
+# Set Quarkus to expose port 8081 or what port you want to expose in the Dockerfile
+quarkus.container-image.expose=true
+quarkus.container-image.ports=8081 ??
+
 Once you have added the extension and configured the properties, you can build the Quarkus application and the Docker image using the following Maven command:
 ./mvnw clean package
 or 
@@ -195,6 +199,116 @@ GET http://localhost:30080/currency/exchange-rate/USD/EUR
 
 POST http://localhost:30081/exchange/USD/EUR/1
 POST http://localhost:30081/exchange/USD/EUR/2
+
+
+
+==========================
+
+```t
+
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=nileshzarkar --docker-password=maheshx@91 --docker-email=nileshzarkar@gmail.com
+
+helm create htmlpage
+
+
+
+Update Chart.yaml
+apiVersion: v2
+name: htmlpage
+description: A Helm chart for Kubernetes
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+
+
+Update values.yaml
+replicaCount: 1
+image:
+  repository: nileshzarkar/htmlpage
+  pullPolicy: Always
+  tag: "1.0.0"
+imagePullSecrets:
+  - name: regcred
+...
+serviceAccount:
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
+...
+service:
+  type: NodePort
+  port: 8082
+  targetPort: 8082
+  nodePort: 30082
+config:
+  pageColor: "red"
+ingress:
+...
+
+
+
+Update deployment.yaml
+...
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: page.color
+              value: {{ .Values.config.pageColor }}     
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+...
+
+
+
+Update service.yaml
+apiVersion: v1
+kind: Service
+...
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      nodePort: {{ .Values.service.nodePort }}
+      protocol: TCP
+      name: http
+...
+
+
+
+htmlpage\htmlpage> helm install htmlpage .
+
+htmlpage\htmlpage> helm uninstall htmlpage .
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 =====================
 

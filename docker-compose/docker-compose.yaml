@@ -5,7 +5,7 @@ services:
     ports:
       - "8080:8080"   # Expose currency-service on port 8080
     networks:
-      - currency-exchange-network
+      - currency-exchange-page-network
 
   exchange-service:
     image: niles/exchange:1.0.0
@@ -14,8 +14,15 @@ services:
     environment:
       - MP_REST_CLIENT_CURRENCYSERVICECLIENT_URL=http://currency-service:8080  # Change to use service name
     networks:
-      - currency-exchange-network
+      - currency-exchange-page-network
+
+  htmlpage-service:
+    image: niles/htmlpage:1.0.0
+    ports:
+      - "8082:8082"   # Expose exchange-service on port 8082
+    networks:
+      - currency-exchange-page-network
 
 networks:
-  currency-exchange-network:
+  currency-exchange-page-network:
     driver: bridge
