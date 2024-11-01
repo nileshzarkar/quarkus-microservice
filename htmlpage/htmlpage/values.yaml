@@ -1,50 +1,32 @@
-# Default values for htmlpage.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 replicaCount: 1
 
 image:
   repository: nileshzarkar/htmlpage
   pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "1.0.0"
 
-imagePullSecrets:
-  - name: regcred
+imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
-  create: false
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: false
-  # Annotations to add to the service account
+  create: true
+  automount: true
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
 service:
   type: NodePort
   port: 8082
-  targetPort: 8082
   nodePort: 30082
+  targetPort: 8082
 
 config:
   pageColor: "red"

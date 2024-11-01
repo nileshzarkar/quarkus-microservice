@@ -206,6 +206,7 @@ POST http://localhost:30081/exchange/USD/EUR/2
 
 ```t
 
+Below config optional:   
 kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=nileshzarkar --docker-password=maheshx@91 --docker-email=nileshzarkar@gmail.com
 
 helm create htmlpage
@@ -228,10 +229,13 @@ image:
   repository: nileshzarkar/htmlpage
   pullPolicy: Always
   tag: "1.0.0"
-imagePullSecrets:
+
+Below config optional:   
+imagePullSecrets:  
   - name: regcred
 ...
-serviceAccount:
+Below config optional:   
+serviceAccount:  
   create: false
   automount: false
   annotations: {}

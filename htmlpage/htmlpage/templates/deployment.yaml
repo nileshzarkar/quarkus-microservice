@@ -42,7 +42,7 @@ spec:
               protocol: TCP
           env:
             - name: page.color
-              value: {{ .Values.config.pageColor }}     
+              value: {{ .Values.config.pageColor }}    
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
