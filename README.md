@@ -206,6 +206,24 @@ POST http://localhost:30081/exchange/USD/EUR/2
 
 ```t
 
+n Helm, "chart" and "release" have distinct meanings:
+
+    Chart:
+        A chart is a Helm package that contains all the resource definitions necessary to deploy an application in Kubernetes.
+        It includes templates, configuration files, and metadata required for deploying a service or application.
+        A chart is similar to a blueprint. It’s reusable and can be shared or versioned, allowing you to install or update applications across multiple environments consistently.
+
+    Release:
+        A release is an instance of a chart that has been deployed to a Kubernetes cluster.
+        When you run helm install, Helm takes the chart and deploys it, creating a release.
+        Multiple releases can be created from the same chart, allowing you to deploy multiple instances of the application, each with its own configuration.
+        Each release has a unique name and tracks the history of changes, allowing rollbacks or upgrades specific to that instance.
+
+In short:
+
+    Chart = Template or package for deployment.
+    Release = A specific instance of that chart deployed on a Kubernetes cluster.
+
 Below config optional:   
 kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=nileshzarkar --docker-password=maheshx@91 --docker-email=nileshzarkar@gmail.com
 
