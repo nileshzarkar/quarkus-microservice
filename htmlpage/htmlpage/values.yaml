@@ -61,12 +61,16 @@ resources: {}
 
 livenessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /q/health/live
+    port: 8082
+  initialDelaySeconds: 30
+  periodSeconds: 10  
 readinessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /q/health/ready
+    port: 8082
+  initialDelaySeconds: 30
+  periodSeconds: 10  
 
 autoscaling:
   enabled: false

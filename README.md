@@ -66,6 +66,11 @@ quarkus.container-image.group=my-dockerhub-username
 or
 push the image using:
 ./mvnw clean package -Dquarkus.container-image.push=true
+or
+
+docker tag niles/htmlpage:1.0.0 nileshzarkar/htmlpage:1.0.0
+docker push nileshzarkar/htmlpage:1.0.0
+
 
 =========================
 
