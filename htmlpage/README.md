@@ -191,4 +191,36 @@ deployment.yaml
       labels:
 ...
 
+
+18-Helm-Dev-WITH-If-Else
+Usecase: 1 
+This case is only with WITH and no if-else (Retrieve single object using scope Part of 17-Helm-Dev-WITH)
+values.yaml
+...
+service:
+  type: NodePort
+  port: 8082
+  nodePort: 30082
+  targetPort: 8082
+...
+
+service.yaml
+...
+spec:
+  {{- with .Values.service }}
+  type: {{ .type }}
+  ports:
+    - port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      nodePort: {{ .nodePort }}
+      protocol: TCP
+      name: http
+  {{- end }}    
+  selector:
+...
+
+
+19-Helm-Dev-Variables
+
+
 ```
