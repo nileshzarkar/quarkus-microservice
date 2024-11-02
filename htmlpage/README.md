@@ -79,6 +79,30 @@ spec:
 ...
 
 
+15-Helm-Dev-If-Else-OR
+Usecase: 1
+values.yaml
+...
+podAnnotations: {}
+podLabels:
+  environment: qa
+...
+
+deployment.yaml
+...
+    {{- include "htmlpage.labels" . | nindent 4 }}
+spec:
+  {{- if and .Values.autoscaling.enabled (eq .Values.podLabels.environment "prod") }}
+  replicas: 4
+  {{- else if or (eq .Values.podLabels.environment "testing") (eq .Values.podLabels.environment "qa") }}  
+  replicas: 2
+  {{- else }}  
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}  
+  selector:
+...  
+
+
 
 
 

@@ -17,7 +17,7 @@ serviceAccount:
 
 podAnnotations: {}
 podLabels:
-  environment: dev
+  environment: qa
 
 podSecurityContext: {}
 

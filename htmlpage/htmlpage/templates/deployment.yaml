@@ -7,7 +7,7 @@ metadata:
 spec:
   {{- if and .Values.autoscaling.enabled (eq .Values.podLabels.environment "prod") }}
   replicas: 4
-  {{- else if eq .Values.podLabels.environment "qa" }}  
+  {{- else if or (eq .Values.podLabels.environment "testing") (eq .Values.podLabels.environment "qa") }}  
   replicas: 2
   {{- else }}  
   replicas: {{ .Values.replicaCount }}
