@@ -1,3 +1,5 @@
+{{- $chartname := .Chart.Name | quote | upper -}}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,6 +23,7 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
         appManagedBy: {{ $.Release.Service }}
+        appHelmChart: {{ $chartname }}
       {{- end }}
       labels:
         {{- include "htmlpage.labels" . | nindent 8 }}

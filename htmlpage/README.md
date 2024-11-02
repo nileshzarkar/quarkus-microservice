@@ -221,6 +221,21 @@ spec:
 
 
 19-Helm-Dev-Variables
+Usecase: 1
+deployment.yaml
+{{- $chartname := .Chart.Name | quote | upper -}}
+apiVersion: apps/v1
+kind: Deployment
+...
+   annotations:
+        {{- toYaml . | nindent 8 }}
+        appManagedBy: {{ $.Release.Service }}
+        appHelmChart: {{ $chartname }}
+      {{- end }}
+      labels:
+...
+
+
 
 
 ```
