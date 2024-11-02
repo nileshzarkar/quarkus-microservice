@@ -51,5 +51,35 @@ spec:
 ...
 
 
+14-Helm-Dev-If-Else-AND-BOOLEAN
+Usecase: 1
+values.yaml
+...
+podAnnotations: {}
+podLabels:
+  environment: dev
+...
+autoscaling:
+  enabled: true
+  # enabled: false
+  minReplicas: 1
+...
+
+deployment.yaml
+...
+spec:
+  {{- if and .Values.autoscaling.enabled (eq .Values.podLabels.environment "prod") }}
+  replicas: 4
+  {{- else if eq .Values.podLabels.environment "qa" }}  
+  replicas: 2
+  {{- else }}  
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}  
+  selector:
+...
+
+
+
+
 
 ```

@@ -5,15 +5,13 @@ metadata:
   labels:
     {{- include "htmlpage.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  {{- if eq .Values.podLabels.environment "prod" }}
+  {{- if and .Values.autoscaling.enabled (eq .Values.podLabels.environment "prod") }}
   replicas: 4
   {{- else if eq .Values.podLabels.environment "qa" }}  
   replicas: 2
   {{- else }}  
   replicas: {{ .Values.replicaCount }}
   {{- end }}  
-  {{- end }}
   selector:
     matchLabels:
       {{- include "htmlpage.selectorLabels" . | nindent 6 }}
