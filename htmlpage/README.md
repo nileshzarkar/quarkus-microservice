@@ -103,7 +103,93 @@ spec:
 ...  
 
 
+16-Helm-Dev-If-Else-NOT
+Usecase: 1
+values.yaml
+...
+podAnnotations: {}
+podLabels:
+  environment: qa
+...
+
+deployment.yaml
+...
+    {{- include "htmlpage.labels" . | nindent 4 }}
+spec:
+  {{- if not (eq .Values.podLabels.environment "prod") }}
+  replicas: 1
+  {{- else }}  
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}  
+  selector:
+  ...
 
 
+17-Helm-Dev-WITH
+Usecase: 1
+values.yaml
+...
+podAnnotations:
+  appName: htmlDynamicPage
+podLabels:
+  environment: qa
+...
+
+deployment.yaml
+...
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+...
+
+Usecase: 2
+Try to access any Root Object in "with" action block
+values.yaml
+...
+podAnnotations:
+  appName: htmlDynamicPage
+podLabels:
+  environment: qa
+...
+
+deployment.yaml
+...
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+        appManagedBy: {{ .Release.Service }}
+      {{- end }}
+      labels:
+...
+Error: template: htmlpage/templates/deployment.yaml:23:33: executing "htmlpage/templates/deployment.yaml" at <.Release.Service>: nil pointer evaluating interface {}.Service
+
+Usecase: 3
+Usecase: 2
+Try to access any Root Object in "with" action block with $
+values.yaml
+...
+podAnnotations:
+  appName: htmlDynamicPage
+podLabels:
+  environment: qa
+...
+
+deployment.yaml
+...
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+        appManagedBy: {{ $.Release.Service }}
+      {{- end }}
+      labels:
+...
 
 ```

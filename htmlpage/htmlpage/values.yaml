@@ -15,9 +15,10 @@ serviceAccount:
   annotations: {}
   name: ""
 
-podAnnotations: {}
+podAnnotations:
+  appName: htmlDynamicPage
 podLabels:
-  environment: qa
+  environment: dev
 
 podSecurityContext: {}
 
