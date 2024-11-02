@@ -170,7 +170,6 @@ deployment.yaml
 Error: template: htmlpage/templates/deployment.yaml:23:33: executing "htmlpage/templates/deployment.yaml" at <.Release.Service>: nil pointer evaluating interface {}.Service
 
 Usecase: 3
-Usecase: 2
 Try to access any Root Object in "with" action block with $
 values.yaml
 ...
