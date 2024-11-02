@@ -16,7 +16,8 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
-podLabels: {}
+podLabels:
+  environment: dev
 
 podSecurityContext: {}
 
@@ -63,14 +64,14 @@ livenessProbe:
   httpGet:
     path: /q/health/live
     port: 8082
-  initialDelaySeconds: 30
-  periodSeconds: 10  
+  initialDelaySeconds: 5
+  periodSeconds: 5  
 readinessProbe:
   httpGet:
     path: /q/health/ready
     port: 8082
-  initialDelaySeconds: 30
-  periodSeconds: 10  
+  initialDelaySeconds: 5
+  periodSeconds: 5  
 
 autoscaling:
   enabled: false
