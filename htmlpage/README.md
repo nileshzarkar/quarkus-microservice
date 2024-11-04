@@ -346,18 +346,27 @@ Summary
     indent helps maintain the correct YAML structure by adding spaces at the beginning of lines.
     It is especially useful when working with nested structures, loops, or multi-line text, keeping everything properly aligned.
 
-nindent function
-The nindent function in Helm is used to add indentation along with a newline to blocks of text, making it easier to format YAML properly. It combines newline (\n) and indentation for cleaner, readable, and correctly aligned YAML structures.
+
+### nindent function
+The nindent function in Helm is used to add indentation along with a newline to blocks of text, making it easier to format YAML properly. 
+
+It combines newline (\n) and indentation for cleaner, readable, and correctly aligned YAML structures.
+
 How nindent Works
-    Syntax: nindent N adds a newline and then indents the text by N spaces.
-    Purpose: Ensures YAML elements line up correctly, especially in nested structures, without breaking YAML syntax.
+- Syntax: nindent N adds a newline and then indents the text by N spaces.
+- Purpose: Ensures YAML elements line up correctly, especially in nested structures, without breaking YAML syntax.
+
 Example 1: Basic Usage of nindent
+
 Suppose you have a ConfigMap template, and you want to add multiline data from values:
 values.yaml:
+```t
 configData:
   - key1: "value1"
   - key2: "value2"
+```
 configmap.yaml:
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -365,10 +374,11 @@ metadata:
 data:
   config: |
     {{- toYaml .Values.configData | nindent 4 }}
-
+```
     toYaml converts configData into YAML format.
     nindent 4 adds a newline and indents each line by 4 spaces.
-Output:
+Rendered Output:
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -377,15 +387,21 @@ data:
   config: |
     - key1: value1
     - key2: value2
+```
+
 Example 2: Nested Structures with nindent
+
 If you’re creating labels or environment variables, nindent helps align fields properly within nested structures.
 values.yaml:
+```t
 env:
   - name: ENV1
     value: "production"
   - name: ENV2
     value: "debug"
+```    
 deployment.yaml:
+```t
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -401,9 +417,11 @@ spec:
           image: my-image
           env:
             {{- toYaml .Values.env | nindent 12 }}
+```          
 Explanation:
     nindent 12 aligns the environment variables inside the containers block, keeping YAML formatting intact.
 Output:
+```t
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -422,9 +440,10 @@ spec:
               value: "production"
             - name: ENV2
               value: "debug"
+```              
 Summary
-    nindent adds both a newline and indentation, making nested YAML elements align correctly.
-    It’s especially useful for multi-line or nested values in templates, ensuring proper formatting without extra line breaks.
+- nindent adds both a newline and indentation, making nested YAML elements align correctly.
+- It’s especially useful for multi-line or nested values in templates, ensuring proper formatting without extra line breaks.
 
 ### toYaml
 In Helm, toYaml is a function that converts a value (like a map or list) into properly formatted YAML. 
