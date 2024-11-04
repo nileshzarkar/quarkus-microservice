@@ -538,6 +538,26 @@ deployment.yaml
         resources: 
         {{- toYaml .Values.resources | nindent 10}}
 ```
+Rendered YAML:
+```t
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+      - name: nginx
+        image: ghcr.io/stacksimplify/kubenginx:4.0.0
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+```
 Explanation of indent
 - | indent N adds N spaces to each line produced by toYaml, which is essential for keeping the YAML structure correct within the larger file.
 
