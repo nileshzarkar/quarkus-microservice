@@ -428,10 +428,15 @@ Summary
 
 ### toYaml
 In Helm, toYaml is a function that converts a value (like a map or list) into properly formatted YAML. 
+
 It’s useful for handling complex structures like lists or nested values in values.yaml, making them easier to add to templates without worrying about indentation or formatting.
+
 Here’s how toYaml works and some simple examples:
+
 Basic Usage of toYaml
+
 When you use toYaml, Helm converts a map or list into YAML format. You can then add it to your template, where it will automatically be formatted correctly.
+
 Syntax:
 ```t
 {{ toYaml .Values.someVariable }}
@@ -512,11 +517,12 @@ spec:
               value: "info"
 ```
 Explanation of indent
-    | indent N adds N spaces to each line produced by toYaml, which is essential for keeping the YAML structure correct within the larger file.
+- | indent N adds N spaces to each line produced by toYaml, which is essential for keeping the YAML structure correct within the larger file.
+
 Summary
-    toYaml is used to convert lists or maps to YAML in a clean, readable way.
-    It’s especially helpful when you have nested structures or dynamic configurations in values.yaml.
-    Using toYaml with indent helps keep templates organized and properly formatted.
+- toYaml is used to convert lists or maps to YAML in a clean, readable way.
+- It’s especially helpful when you have nested structures or dynamic configurations in values.yaml.
+- Using toYaml with indent helps keep templates organized and properly formatted.
 
 
 13-Helm-Dev-If-Else-EQ
