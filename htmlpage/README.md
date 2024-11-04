@@ -112,38 +112,48 @@ Summary
     dequote: Removes double quotes from a value, making it appear without quotes.
 These functions are especially helpful when working with mixed data types or when values in values.yaml could be misinterpreted by YAML or Kubernetes manifests.
 
-Pipeline
+### Pipeline
 In Helm, a Pipeline is a way to chain multiple template functions together to process data step-by-step. It’s represented by the | symbol (pipe) and works similarly to Unix/Linux pipelines, where the output of one function is passed as input to the next function.
 Why Use Pipelines?
 Pipelines make it easier to format, modify, or control the output of data in Helm templates. By combining functions, you can create clean, readable code and apply multiple operations in a single line.
 Basic Structure of a Pipeline
+```t
 {{ <input> | <function1> | <function2> | ... }}
+```
 Each function processes the input and passes the result to the next function in the chain.
 Common Pipeline Functions in Helm
 Let’s look at some examples of pipelines and how they are commonly used in Helm templates.
 Example 1: Formatting Text with quote and upper
 Suppose you have an environment variable, and you want to make its value uppercase and wrap it in quotes.
+```t
 env:
   - name: ENVIRONMENT
     value: {{ .Values.environment | upper | quote }}
+```    
 Here’s what’s happening:
     .Values.environment is fetched from values.yaml.
     upper converts it to uppercase.
     quote wraps it in double quotes.
 Result: If environment is dev, the output would be:
+```t
 env:
   - name: ENVIRONMENT
     value: "DEV"
+```
 Example 2: Indenting Text with nindent
 Indentation is important in YAML, so nindent helps to format text with both a newline and specific indentation.
+```t
 labels:
   {{ include "my-chart.labels" . | nindent 4 }}
+```
 Here:
     include "my-chart.labels" . calls a reusable template.
     nindent 4 adds a newline and indents the output by 4 spaces.
 Example 3: Using default with Pipelines
 Suppose you want to use a default value if a variable isn’t set. The default function provides a fallback value.
+```t
 replicas: {{ .Values.replicas | default 1 }}
+```
 Here:
     If .Values.replicas is defined, it uses that value.
     If not, it defaults to 1.
@@ -151,7 +161,9 @@ Result: If replicas isn’t set in values.yaml, the output would be:
 replicas: 1
 Example 4: Combining include, trim, and default
 This example demonstrates chaining multiple functions for custom formatting.
+```t
 name: {{ include "my-chart.fullname" . | trim | default "default-name" }}
+```
 Here:
     include "my-chart.fullname" . generates a full name from a defined template.
     trim removes any extra whitespace.
