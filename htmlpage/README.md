@@ -6,6 +6,454 @@
 
 ```t
 Helm
+12-Helm-Dev-Basics
+Template Actions `{{ }}`
+In Helm, Template Actions are commands or functions that tell Helm what to do within a template file. They use Go template syntax and are placed inside {{ ... }} braces. These actions help control the content, structure, and behavior of the generated Kubernetes manifests by adding dynamic values, conditions, loops, and more.
+Here’s a breakdown of common template actions in Helm, explained in simplified terms:
+- Anything in between Template Action `{{ .Chart.Name }}` is called Action Element
+- Anything in between Template Action `{{ .Chart.Name }}` will be rendered by helm template engine and replace necessary values
+- Anything outside of the template action will be printed as it is.
+
+Action Elements `{{ .Release.Name }}`
+In Helm, Action Elements are special commands in templates that perform specific actions, like defining templates, including other templates, or running conditional logic. They are written inside {{ ... }} or {{- ... -}} tags in Helm templates and help control how Kubernetes manifests are generated.
+Here’s a breakdown of the main types of Action Elements:
+1. Define (define)
+    Used to create reusable templates that can be called in other parts of the chart.
+    You define a section of code with define and give it a name, which you can refer to later.
+    Example:
+{{- define "my-chart.labels" -}}
+app: {{ .Chart.Name }}
+version: {{ .Chart.Version }}
+{{- end }}
+2. Include (include)
+    Used to call or "include" a template that you defined elsewhere (like in _helpers.tpl).
+    You use include to insert the output of a defined template into another part of your template.
+    Example:    
+labels:
+  {{ include "my-chart.labels" . | indent 4 }}
+3. If/Else (if, else, else if)
+    Used to apply conditional logic in templates.
+    You can create different sections of configuration depending on values from values.yaml or other variables.
+    Example:
+{{- if .Values.production }}
+replicas: 3
+{{- else }}
+replicas: 1
+{{- end }}
+4. With (with)
+    Sets a specific scope to simplify access to values.
+    Useful when working with nested values or a specific part of the template to avoid long variable paths.
+    Example:
+{{- with .Values.image }}
+image: {{ .repository }}:{{ .tag }}
+{{- end }}
+5. Range (range)
+    Used to loop through lists or maps (like arrays of data in values.yaml).
+    Allows you to repeat parts of a template for each item in a list or dictionary.
+    Example:
+env:
+  {{- range .Values.env }}
+  - name: {{ .name }}
+    value: {{ .value }}
+  {{- end }}
+
+# Helm Template Command
+helm template myapp101 .
+1. helm template command helps us to check the output of the chart in fully rendered Kubernetes resource templates. 
+2. This will be very helpful when we are developing a new chart, making changes to the chart templates, for debugging etc.
+
+Quote Function
+In Helm, the quote and dequote functions are used to manage how values are handled as strings, which can be helpful for ensuring the correct data format in YAML or when dealing with complex strings. Here’s a simple explanation of each:
+1. quote Function
+The quote function in Helm adds double quotes around a value, ensuring that it’s treated as a string. This is useful for handling values that might look like other types (e.g., numbers or booleans) but need to be read as strings.
+Example: Using quote to Ensure a Value is a String
+Let’s say you have a values.yaml file with a setting that looks numeric but should be treated as a string:
+apiVersion: 2
+In your template, you might want to ensure apiVersion is treated as a string:
+apiVersion: {{ .Values.apiVersion | quote }}
+This results in:
+apiVersion: "2"
+If you didn’t use quote, apiVersion could be interpreted as a number instead of a string, which can sometimes cause issues in YAML files.
+2. dequote Function
+The dequote function removes any leading or trailing double quotes from a value. This is useful if you have a value that comes with quotes but you need it to be unquoted in the output.
+Example: Using dequote to Remove Quotes from a String
+Suppose your values.yaml file has:
+namespace: '"default"'
+Without dequote, it would appear with double quotes in your template:
+namespace: {{ .Values.namespace }}
+Output:
+namespace: "\"default\""
+Using dequote removes the unnecessary quotes:
+namespace: {{ .Values.namespace | dequote }}
+Output:
+namespace: default
+Summary
+    quote: Adds double quotes around a value, ensuring it’s treated as a string.
+    dequote: Removes double quotes from a value, making it appear without quotes.
+These functions are especially helpful when working with mixed data types or when values in values.yaml could be misinterpreted by YAML or Kubernetes manifests.
+
+Pipeline
+In Helm, a Pipeline is a way to chain multiple template functions together to process data step-by-step. It’s represented by the | symbol (pipe) and works similarly to Unix/Linux pipelines, where the output of one function is passed as input to the next function.
+Why Use Pipelines?
+Pipelines make it easier to format, modify, or control the output of data in Helm templates. By combining functions, you can create clean, readable code and apply multiple operations in a single line.
+Basic Structure of a Pipeline
+{{ <input> | <function1> | <function2> | ... }}
+Each function processes the input and passes the result to the next function in the chain.
+Common Pipeline Functions in Helm
+Let’s look at some examples of pipelines and how they are commonly used in Helm templates.
+Example 1: Formatting Text with quote and upper
+Suppose you have an environment variable, and you want to make its value uppercase and wrap it in quotes.
+env:
+  - name: ENVIRONMENT
+    value: {{ .Values.environment | upper | quote }}
+Here’s what’s happening:
+    .Values.environment is fetched from values.yaml.
+    upper converts it to uppercase.
+    quote wraps it in double quotes.
+Result: If environment is dev, the output would be:
+env:
+  - name: ENVIRONMENT
+    value: "DEV"
+Example 2: Indenting Text with nindent
+Indentation is important in YAML, so nindent helps to format text with both a newline and specific indentation.
+labels:
+  {{ include "my-chart.labels" . | nindent 4 }}
+Here:
+    include "my-chart.labels" . calls a reusable template.
+    nindent 4 adds a newline and indents the output by 4 spaces.
+Example 3: Using default with Pipelines
+Suppose you want to use a default value if a variable isn’t set. The default function provides a fallback value.
+replicas: {{ .Values.replicas | default 1 }}
+Here:
+    If .Values.replicas is defined, it uses that value.
+    If not, it defaults to 1.
+Result: If replicas isn’t set in values.yaml, the output would be:
+replicas: 1
+Example 4: Combining include, trim, and default
+This example demonstrates chaining multiple functions for custom formatting.
+name: {{ include "my-chart.fullname" . | trim | default "default-name" }}
+Here:
+    include "my-chart.fullname" . generates a full name from a defined template.
+    trim removes any extra whitespace.
+    default "default-name" sets a fallback if the result is empty.
+Result: If fullname is empty, the output will be:
+name: default-name
+Summary
+In Helm, pipelines are a powerful way to simplify template code by chaining functions together:
+    You can transform data, add default values, or clean up the output with a readable, single line.
+    Common functions used in pipelines include quote, default, upper, trim, nindent, and include.
+Pipelines help keep Helm templates clean, flexible, and easy to read.
+
+default Function
+In Helm, the default function is used to provide a fallback value if a variable is missing or undefined. It’s especially helpful when you want to make sure a value is always set, even if it isn’t provided in values.yaml.
+{{ default "fallback_value" .Values.someKey }}
+    fallback_value: The value to use if .Values.someKey is not set or is empty.
+    .Values.someKey: The variable you’re checking from values.yaml.
+If .Values.someKey is defined, Helm will use its value. If not, Helm will use "fallback_value".
+Examples of default in Action
+Example 1: Setting a Default Value for a Variable
+Suppose you have a variable replicaCount in values.yaml to define the number of replicas for a deployment. If it is not set, you want to default to 1.
+Template (deployment.yaml):
+replicas: {{ default 1 .Values.replicaCount }}
+    If replicaCount is defined in values.yaml (e.g., replicaCount: 3), Helm uses that value.
+    If replicaCount is missing or empty, Helm will use 1 as the default.
+Example 2: Providing a Default Image Tag
+Suppose you have an image tag that should default to latest if not set in values.yaml.
+Template (deployment.yaml):
+image:
+  repository: my-app
+  tag: {{ default "latest" .Values.image.tag }}
+values.yaml:
+image:
+  repository: my-app
+  # tag is not specified
+    Here, if image.tag is not specified in values.yaml, Helm will use "latest" as the tag.
+    If you later add image.tag: "1.0.0" in values.yaml, Helm will use "1.0.0" instead.
+Example 3: Setting a Default Label
+If you want to add an environment label that defaults to "dev" when not specified:
+Template (deployment.yaml):
+metadata:
+  labels:
+    environment: {{ default "dev" .Values.environment }}
+values.yaml:
+# environment: "production"
+    If environment is commented out or missing in values.yaml, Helm will set the label as environment: dev.
+    If environment is defined as "production", Helm will use that value.
+Summary
+The default function ensures that Helm charts have fallback values, making templates more robust and flexible. This function helps avoid errors and ensures that necessary values are always present.
+
+Controlling White Spaces `{{-  -}}`
+In Helm templates, whitespace control is important for creating clean and readable YAML output. Helm uses {{- and -}} to trim spaces from template expressions, allowing you to control how much whitespace appears in the final output.
+Here’s a simplified breakdown of how to use {{- ... -}} to control whitespace.
+1. Basic Syntax of Whitespace Control
+    {{ ... }}: Includes spaces around the template expression.
+    {{- ... }}: Trims spaces before the expression.
+    {{ ... -}}: Trims spaces after the expression.
+    {{- ... -}}: Trims both before and after the expression.
+2. Examples of Whitespace Control
+Example 1: Removing Extra Blank Lines
+Without whitespace control, you may end up with unwanted blank lines in your output.
+Template without Whitespace Control:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  key: {{ .Values.someKey }}
+  {{ if .Values.optionalKey }}
+  optionalKey: {{ .Values.optionalKey }}
+  {{ end }}
+If optionalKey is not defined, this produces extra blank lines in the output:
+Output:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  key: value
+Template with Whitespace Control:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  key: {{ .Values.someKey }}
+  {{- if .Values.optionalKey }}
+  optionalKey: {{ .Values.optionalKey }}
+  {{- end }}
+Output (no extra lines):
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  key: value
+Using {{- before if and end removes any unnecessary blank lines.
+Example 2: Controlling Indentation in Loops
+When using loops, whitespace control helps prevent unintended line breaks.
+Template without Whitespace Control:
+env:
+  {{ range .Values.env }}
+  - name: {{ .name }}
+    value: {{ .value }}
+  {{ end }}
+If .Values.env has multiple items, this could add blank spaces between items.
+Template with Whitespace Control:
+env:
+  {{- range .Values.env }}
+  - name: {{ .name }}
+    value: {{ .value }}
+  {{- end }}
+Output:
+env:
+  - name: KEY1
+    value: VALUE1
+  - name: KEY2
+    value: VALUE2
+By using {{- and -}} around range and end, we get a clean list with no extra spaces.
+Summary
+    Use {{- and -}} to remove unwanted blank spaces and lines in Helm templates.
+    Helps in keeping YAML files neat and readable, especially when handling optional fields or loops.
+This ensures that your final YAML output is well-formatted and free of unnecessary blank lines or spaces.
+
+indent function
+In Helm, the indent function is used to add spaces at the beginning of each line in a block of text. This is especially helpful in YAML, where indentation is critical for structuring data correctly.
+The indent function takes two arguments:
+    Number of spaces to add.
+    The content to be indented.
+Here’s how it works with examples.
+Example 1: Basic Usage of indent
+Suppose you want to add labels in your deployment.yaml template, and you need them indented by 4 spaces to align with YAML structure.
+metadata:
+  labels:
+    {{- include "my-app.labels" . | indent 4 }}
+Here, indent 4 adds 4 spaces to the beginning of each line in the my-app.labels template output, ensuring it’s correctly aligned under labels:.
+Example 2: Using indent with range
+When using loops (range) in Helm, each line in the loop may need to be indented to fit properly in the YAML structure.
+values.yaml:
+env:
+  - name: APP_ENV
+    value: "production"
+  - name: LOG_LEVEL
+    value: "info"
+deployment.yaml:
+spec:
+  containers:
+    - name: my-app
+      env:
+        {{- range .Values.env }}
+        {{ .name }}: {{ .value | quote | indent 6 }}
+        {{- end }}
+Here:
+    indent 6 aligns each environment variable under env:, so each variable line has the correct 6-space indentation.
+Example 3: Combining indent with Multi-line Text
+Sometimes, you might want to include multi-line text data like ConfigMap data or scripts in your templates. You can use indent to ensure correct alignment.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  my-config-file: |
+    {{- "key1: value1\nkey2: value2\nkey3: value3" | indent 4 }}
+Here:
+    indent 4 adds 4 spaces to each line in the multi-line string, making sure it aligns properly within the YAML structure under my-config-file:.
+Summary
+    indent helps maintain the correct YAML structure by adding spaces at the beginning of lines.
+    It is especially useful when working with nested structures, loops, or multi-line text, keeping everything properly aligned.
+
+nindent function
+The nindent function in Helm is used to add indentation along with a newline to blocks of text, making it easier to format YAML properly. It combines newline (\n) and indentation for cleaner, readable, and correctly aligned YAML structures.
+How nindent Works
+    Syntax: nindent N adds a newline and then indents the text by N spaces.
+    Purpose: Ensures YAML elements line up correctly, especially in nested structures, without breaking YAML syntax.
+Example 1: Basic Usage of nindent
+Suppose you have a ConfigMap template, and you want to add multiline data from values:
+values.yaml:
+configData:
+  - key1: "value1"
+  - key2: "value2"
+configmap.yaml:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  config: |
+    {{- toYaml .Values.configData | nindent 4 }}
+
+    toYaml converts configData into YAML format.
+    nindent 4 adds a newline and indents each line by 4 spaces.
+Output:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  config: |
+    - key1: value1
+    - key2: value2
+Example 2: Nested Structures with nindent
+If you’re creating labels or environment variables, nindent helps align fields properly within nested structures.
+values.yaml:
+env:
+  - name: ENV1
+    value: "production"
+  - name: ENV2
+    value: "debug"
+deployment.yaml:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-container
+          image: my-image
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+Explanation:
+    nindent 12 aligns the environment variables inside the containers block, keeping YAML formatting intact.
+Output:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-container
+          image: my-image
+          env:
+            - name: ENV1
+              value: "production"
+            - name: ENV2
+              value: "debug"
+Summary
+    nindent adds both a newline and indentation, making nested YAML elements align correctly.
+    It’s especially useful for multi-line or nested values in templates, ensuring proper formatting without extra line breaks.
+
+toYaml
+In Helm, toYaml is a function that converts a value (like a map or list) into properly formatted YAML. It’s useful for handling complex structures like lists or nested values in values.yaml, making them easier to add to templates without worrying about indentation or formatting.
+Here’s how toYaml works and some simple examples:
+Basic Usage of toYaml
+When you use toYaml, Helm converts a map or list into YAML format. You can then add it to your template, where it will automatically be formatted correctly.
+Syntax:
+{{ toYaml .Values.someVariable }}
+Example 1: Converting a Simple Map
+Suppose you have the following configuration in values.yaml:
+values.yaml:
+config:
+  appName: "my-app"
+  environment: "production"
+  replicas: 3
+In your template, you can use toYaml to add all the items in config without manually listing each one:
+deployment.yaml:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  config.yaml: |
+    {{ toYaml .Values.config | indent 4 }}
+Here’s what the output will look like after applying toYaml and indent 4 to ensure proper formatting:
+Rendered YAML:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  config.yaml: |
+    appName: "my-app"
+    environment: "production"
+    replicas: 3
+Example 2: Converting a List of Environment Variables
+Suppose you want to add environment variables to your container based on a list defined in values.yaml:
+values.yaml:
+env:
+  - name: "APP_ENV"
+    value: "production"
+  - name: "LOG_LEVEL"
+    value: "info"
+In your template, use toYaml to easily convert this list into YAML format:
+deployment.yaml:
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: my-container
+          env:
+            {{ toYaml .Values.env | indent 12 }}
+Rendered YAML:
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: my-container
+          env:
+            - name: "APP_ENV"
+              value: "production"
+            - name: "LOG_LEVEL"
+              value: "info"
+Explanation of indent
+    | indent N adds N spaces to each line produced by toYaml, which is essential for keeping the YAML structure correct within the larger file.
+Summary
+    toYaml is used to convert lists or maps to YAML in a clean, readable way.
+    It’s especially helpful when you have nested structures or dynamic configurations in values.yaml.
+    Using toYaml with indent helps keep templates organized and properly formatted.
+
 
 13-Helm-Dev-If-Else-EQ
 Usecase: 1
