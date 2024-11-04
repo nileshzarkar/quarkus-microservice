@@ -29,6 +29,7 @@ service:
   port: 8082
   nodePort: 30082
   targetPort: 8082
+  name: my-htmlpage-service
 
 config:
   pageColor: "red"
@@ -100,3 +101,6 @@ env:
     value: "info"
   - name: FEATURE_FLAG
     value: "true"  
+
+replicaIndex: 1
+

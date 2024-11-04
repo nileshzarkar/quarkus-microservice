@@ -5,7 +5,7 @@ kind: Deployment
 metadata:
   name: {{ include "htmlpage.fullname" . }}
   labels:
-    {{- include "htmlpage.labels" . | nindent 4 }}
+    {{- include "my-app.labels" . | nindent 4 }}
 spec:
   {{- if and .Values.autoscaling.enabled (eq .Values.podLabels.environment "prod") }}
   replicas: 4
@@ -55,10 +55,8 @@ spec:
               {{- else }}
               value: "blue"
               {{- end }}
-              {{- range .Values.env }}
-              name: {{ .name }}
-              value: {{ .value | quote }}
-              {{- end }}
+              name: SERVICE_URL
+              value: {{ printf "http://%s:%d" .Values.service.name (int .Values.service.port) }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:

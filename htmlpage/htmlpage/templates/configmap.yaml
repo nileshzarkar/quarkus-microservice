@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-config-%03d" .Chart.Name (int .Values.replicaIndex) }}
+data:
+  config: |
+    {{ printf "appName: %s\n    appVersion: %s" .Chart.Name .Chart.Version }}
