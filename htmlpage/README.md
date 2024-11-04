@@ -166,8 +166,11 @@ Here:
     If .Values.replicas is defined, it uses that value.
     If not, it defaults to 1.
 Result: If replicas isn’t set in values.yaml, the output would be:
+```t
 replicas: 1
+```
 Example 4: Combining include, trim, and default
+
 This example demonstrates chaining multiple functions for custom formatting.
 ```t
 name: {{ include "my-chart.fullname" . | trim | default "default-name" }}
@@ -177,14 +180,16 @@ Here:
     trim removes any extra whitespace.
     default "default-name" sets a fallback if the result is empty.
 Result: If fullname is empty, the output will be:
+```t
 name: default-name
+```
 Summary
 In Helm, pipelines are a powerful way to simplify template code by chaining functions together:
     You can transform data, add default values, or clean up the output with a readable, single line.
     Common functions used in pipelines include quote, default, upper, trim, nindent, and include.
 Pipelines help keep Helm templates clean, flexible, and easy to read.
 
-default Function
+### default Function
 In Helm, the default function is used to provide a fallback value if a variable is missing or undefined. It’s especially helpful when you want to make sure a value is always set, even if it isn’t provided in values.yaml.
 {{ default "fallback_value" .Values.someKey }}
     fallback_value: The value to use if .Values.someKey is not set or is empty.
@@ -421,22 +426,31 @@ Summary
     nindent adds both a newline and indentation, making nested YAML elements align correctly.
     It’s especially useful for multi-line or nested values in templates, ensuring proper formatting without extra line breaks.
 
-toYaml
-In Helm, toYaml is a function that converts a value (like a map or list) into properly formatted YAML. It’s useful for handling complex structures like lists or nested values in values.yaml, making them easier to add to templates without worrying about indentation or formatting.
+### toYaml
+In Helm, toYaml is a function that converts a value (like a map or list) into properly formatted YAML. 
+It’s useful for handling complex structures like lists or nested values in values.yaml, making them easier to add to templates without worrying about indentation or formatting.
 Here’s how toYaml works and some simple examples:
 Basic Usage of toYaml
 When you use toYaml, Helm converts a map or list into YAML format. You can then add it to your template, where it will automatically be formatted correctly.
 Syntax:
+```t
 {{ toYaml .Values.someVariable }}
+```
 Example 1: Converting a Simple Map
+
 Suppose you have the following configuration in values.yaml:
+
 values.yaml:
+```t
 config:
   appName: "my-app"
   environment: "production"
   replicas: 3
+```  
 In your template, you can use toYaml to add all the items in config without manually listing each one:
+
 deployment.yaml:
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -444,8 +458,10 @@ metadata:
 data:
   config.yaml: |
     {{ toYaml .Values.config | indent 4 }}
+```
 Here’s what the output will look like after applying toYaml and indent 4 to ensure proper formatting:
 Rendered YAML:
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -455,16 +471,21 @@ data:
     appName: "my-app"
     environment: "production"
     replicas: 3
+```
 Example 2: Converting a List of Environment Variables
+
 Suppose you want to add environment variables to your container based on a list defined in values.yaml:
 values.yaml:
+```t
 env:
   - name: "APP_ENV"
     value: "production"
   - name: "LOG_LEVEL"
     value: "info"
+```
 In your template, use toYaml to easily convert this list into YAML format:
 deployment.yaml:
+```t
 apiVersion: apps/v1
 kind: Deployment
 spec:
@@ -474,7 +495,9 @@ spec:
         - name: my-container
           env:
             {{ toYaml .Values.env | indent 12 }}
+```
 Rendered YAML:
+```t
 apiVersion: apps/v1
 kind: Deployment
 spec:
@@ -487,6 +510,7 @@ spec:
               value: "production"
             - name: "LOG_LEVEL"
               value: "info"
+```
 Explanation of indent
     | indent N adds N spaces to each line produced by toYaml, which is essential for keeping the YAML structure correct within the larger file.
 Summary
