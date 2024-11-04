@@ -1,5 +1,5 @@
 
-# Helm
+# Helm Tutorial for htmlpage microservice
 ## 12-Helm-Dev-Basics
 ### Template Actions `{{ }}`
 In Helm, Template Actions are commands or functions that tell Helm what to do within a template file. They use Go template syntax and are placed inside {{ ... }} braces. These actions help control the content, structure, and behavior of the generated Kubernetes manifests by adding dynamic values, conditions, loops, and more.
@@ -7,18 +7,20 @@ Here’s a breakdown of common template actions in Helm, explained in simplified
 - Anything in between Template Action `{{ .Chart.Name }}` is called Action Element
 - Anything in between Template Action `{{ .Chart.Name }}` will be rendered by helm template engine and replace necessary values
 - Anything outside of the template action will be printed as it is.
-```t
-Action Elements `{{ .Release.Name }}`
+
+### Action Elements `{{ .Release.Name }}`
 In Helm, Action Elements are special commands in templates that perform specific actions, like defining templates, including other templates, or running conditional logic. They are written inside {{ ... }} or {{- ... -}} tags in Helm templates and help control how Kubernetes manifests are generated.
 Here’s a breakdown of the main types of Action Elements:
 1. Define (define)
     Used to create reusable templates that can be called in other parts of the chart.
     You define a section of code with define and give it a name, which you can refer to later.
     Example:
+```t    
 {{- define "my-chart.labels" -}}
 app: {{ .Chart.Name }}
 version: {{ .Chart.Version }}
 {{- end }}
+```
 2. Include (include)
     Used to call or "include" a template that you defined elsewhere (like in _helpers.tpl).
     You use include to insert the output of a defined template into another part of your template.
