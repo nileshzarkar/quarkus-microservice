@@ -517,8 +517,8 @@ spec:
               value: "info"
 ```
 Example 3: Resources for testing
-# values.yaml
-# Resources for testing Template Function: toYaml 
+values.yaml
+```t
 resources: 
   limits:
     cpu: 100m
@@ -526,8 +526,9 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
-
-# deployment.yaml
+```
+deployment.yaml
+```t
     spec:
       containers:
       - name: nginx
@@ -536,7 +537,7 @@ resources:
         - containerPort: 80
         resources: 
         {{- toYaml .Values.resources | nindent 10}}
-
+```
 Explanation of indent
 - | indent N adds N spaces to each line produced by toYaml, which is essential for keeping the YAML structure correct within the larger file.
 
