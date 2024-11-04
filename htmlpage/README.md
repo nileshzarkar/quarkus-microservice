@@ -65,31 +65,47 @@ helm template myapp101 .
 1. helm template command helps us to check the output of the chart in fully rendered Kubernetes resource templates. 
 2. This will be very helpful when we are developing a new chart, making changes to the chart templates, for debugging etc.
 
-Quote Function
+### Quote Function
 In Helm, the quote and dequote functions are used to manage how values are handled as strings, which can be helpful for ensuring the correct data format in YAML or when dealing with complex strings. Here’s a simple explanation of each:
 1. quote Function
 The quote function in Helm adds double quotes around a value, ensuring that it’s treated as a string. This is useful for handling values that might look like other types (e.g., numbers or booleans) but need to be read as strings.
 Example: Using quote to Ensure a Value is a String
 Let’s say you have a values.yaml file with a setting that looks numeric but should be treated as a string:
+```t
 apiVersion: 2
+```
 In your template, you might want to ensure apiVersion is treated as a string:
+```t
 apiVersion: {{ .Values.apiVersion | quote }}
+```
 This results in:
+```t
 apiVersion: "2"
+```
 If you didn’t use quote, apiVersion could be interpreted as a number instead of a string, which can sometimes cause issues in YAML files.
 2. dequote Function
 The dequote function removes any leading or trailing double quotes from a value. This is useful if you have a value that comes with quotes but you need it to be unquoted in the output.
 Example: Using dequote to Remove Quotes from a String
 Suppose your values.yaml file has:
+```t
 namespace: '"default"'
+```
 Without dequote, it would appear with double quotes in your template:
+```t
 namespace: {{ .Values.namespace }}
+```
 Output:
+```t
 namespace: "\"default\""
+```
 Using dequote removes the unnecessary quotes:
+```t
 namespace: {{ .Values.namespace | dequote }}
+```
 Output:
+```t
 namespace: default
+```
 Summary
     quote: Adds double quotes around a value, ensuring it’s treated as a string.
     dequote: Removes double quotes from a value, making it appear without quotes.
