@@ -301,27 +301,38 @@ Summary
     Helps in keeping YAML files neat and readable, especially when handling optional fields or loops.
 This ensures that your final YAML output is well-formatted and free of unnecessary blank lines or spaces.
 
-indent function
+### indent function
 In Helm, the indent function is used to add spaces at the beginning of each line in a block of text. This is especially helpful in YAML, where indentation is critical for structuring data correctly.
+
 The indent function takes two arguments:
-    Number of spaces to add.
-    The content to be indented.
+- Number of spaces to add.
+- The content to be indented.
+
 Here’s how it works with examples.
+
 Example 1: Basic Usage of indent
+
 Suppose you want to add labels in your deployment.yaml template, and you need them indented by 4 spaces to align with YAML structure.
+```t
 metadata:
   labels:
     {{- include "my-app.labels" . | indent 4 }}
+```
 Here, indent 4 adds 4 spaces to the beginning of each line in the my-app.labels template output, ensuring it’s correctly aligned under labels:.
+
 Example 2: Using indent with range
+
 When using loops (range) in Helm, each line in the loop may need to be indented to fit properly in the YAML structure.
 values.yaml:
+```t
 env:
   - name: APP_ENV
     value: "production"
   - name: LOG_LEVEL
     value: "info"
+```    
 deployment.yaml:
+```t
 spec:
   containers:
     - name: my-app
@@ -329,10 +340,14 @@ spec:
         {{- range .Values.env }}
         {{ .name }}: {{ .value | quote | indent 6 }}
         {{- end }}
+```
 Here:
     indent 6 aligns each environment variable under env:, so each variable line has the correct 6-space indentation.
+
 Example 3: Combining indent with Multi-line Text
+
 Sometimes, you might want to include multi-line text data like ConfigMap data or scripts in your templates. You can use indent to ensure correct alignment.
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -340,11 +355,13 @@ metadata:
 data:
   my-config-file: |
     {{- "key1: value1\nkey2: value2\nkey3: value3" | indent 4 }}
+```
 Here:
     indent 4 adds 4 spaces to each line in the multi-line string, making sure it aligns properly within the YAML structure under my-config-file:.
+
 Summary
-    indent helps maintain the correct YAML structure by adding spaces at the beginning of lines.
-    It is especially useful when working with nested structures, loops, or multi-line text, keeping everything properly aligned.
+- indent helps maintain the correct YAML structure by adding spaces at the beginning of lines.
+- It is especially useful when working with nested structures, loops, or multi-line text, keeping everything properly aligned.
 
 
 ### nindent function
