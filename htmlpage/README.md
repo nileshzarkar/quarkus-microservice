@@ -125,7 +125,9 @@ Basic Structure of a Pipeline
 Each function processes the input and passes the result to the next function in the chain.
 Common Pipeline Functions in Helm
 Let’s look at some examples of pipelines and how they are commonly used in Helm templates.
+
 Example 1: Formatting Text with quote and upper
+
 Suppose you have an environment variable, and you want to make its value uppercase and wrap it in quotes.
 ```t
 env:
@@ -142,7 +144,9 @@ env:
   - name: ENVIRONMENT
     value: "DEV"
 ```
+
 Example 2: Indenting Text with nindent
+
 Indentation is important in YAML, so nindent helps to format text with both a newline and specific indentation.
 ```t
 labels:
@@ -151,7 +155,9 @@ labels:
 Here:
     include "my-chart.labels" . calls a reusable template.
     nindent 4 adds a newline and indents the output by 4 spaces.
+
 Example 3: Using default with Pipelines
+
 Suppose you want to use a default value if a variable isn’t set. The default function provides a fallback value.
 ```t
 replicas: {{ .Values.replicas | default 1 }}
