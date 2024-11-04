@@ -83,6 +83,7 @@ This results in:
 apiVersion: "2"
 ```
 If you didn’t use quote, apiVersion could be interpreted as a number instead of a string, which can sometimes cause issues in YAML files.
+
 2. dequote Function
 The dequote function removes any leading or trailing double quotes from a value. This is useful if you have a value that comes with quotes but you need it to be unquoted in the output.
 Example: Using dequote to Remove Quotes from a String
