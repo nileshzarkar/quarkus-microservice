@@ -25,34 +25,41 @@ version: {{ .Chart.Version }}
     Used to call or "include" a template that you defined elsewhere (like in _helpers.tpl).
     You use include to insert the output of a defined template into another part of your template.
     Example:    
+```t
 labels:
   {{ include "my-chart.labels" . | indent 4 }}
+```
 3. If/Else (if, else, else if)
     Used to apply conditional logic in templates.
     You can create different sections of configuration depending on values from values.yaml or other variables.
     Example:
+```t
 {{- if .Values.production }}
 replicas: 3
 {{- else }}
 replicas: 1
 {{- end }}
+```
 4. With (with)
     Sets a specific scope to simplify access to values.
     Useful when working with nested values or a specific part of the template to avoid long variable paths.
     Example:
+```t
 {{- with .Values.image }}
 image: {{ .repository }}:{{ .tag }}
 {{- end }}
+```
 5. Range (range)
     Used to loop through lists or maps (like arrays of data in values.yaml).
     Allows you to repeat parts of a template for each item in a list or dictionary.
     Example:
+```t    
 env:
   {{- range .Values.env }}
   - name: {{ .name }}
     value: {{ .value }}
   {{- end }}
-
+```
 # Helm Template Command
 helm template myapp101 .
 1. helm template command helps us to check the output of the chart in fully rendered Kubernetes resource templates. 
