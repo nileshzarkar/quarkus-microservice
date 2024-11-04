@@ -236,6 +236,109 @@ kind: Deployment
 ...
 
 
+20-Helm-Dev-Range-List
+Usecase: 1
+values.yaml
+...
+namespaces:
+  - name: namespace1
+  - name: namespace2
+  - name: namespace3
+...
+
+namespaces.yaml
+{{- range .Values.namespaces}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .name }}
+---
+{{- end }}  
+
+Usecase: 2
+values.yaml
+...
+environments:
+  - name: dev
+  - name: qa
+  - name: uat  
+  - name: prod
+...
+
+namespace-with-variable.yaml
+{{- range $environment := .Values.environments}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $environment.name }}
+---
+{{- end }}  
+
+
+21-Helm-Dev-Range-Dict
+Usecase: 1
+values.yaml
+...
+volumes: []
+
+volumeMounts:
+  - name: config-volume
+    mountPath: /app/config
+  - name: data-volume
+    mountPath: /app/data
+
+nodeSelector: {}
+...
+
+deployment.yaml
+...
+          volumeMounts:
+            {{- range .Values.volumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        - name: config-volume
+          emptyDir: {}
+        - name: data-volume
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+
+Usecase: 2
+values.yaml
+...
+env:
+  - name: APP_ENV
+    value: "production"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: FEATURE_FLAG
+    value: "true"  
+...
+
+deployment.yaml
+...
+          env:
+            - name: page.color
+              {{- if eq .Values.podLabels.environment "prod" }}
+              value: {{ .Values.config.pageColor }}    
+              {{- else }}
+              value: "blue"
+              {{- end }}
+              {{- range .Values.env }}
+              name: {{ .name }}
+              value: {{ .value | quote }}
+              {{- end }}
+          livenessProbe:
+...
+
+
+
+
+...
+
+
 
 
 ```
