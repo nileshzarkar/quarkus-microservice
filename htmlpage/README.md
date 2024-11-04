@@ -1,14 +1,13 @@
 
-```t
-Helm
-12-Helm-Dev-Basics
+# Helm
+## 12-Helm-Dev-Basics
 ### Template Actions `{{ }}`
 In Helm, Template Actions are commands or functions that tell Helm what to do within a template file. They use Go template syntax and are placed inside {{ ... }} braces. These actions help control the content, structure, and behavior of the generated Kubernetes manifests by adding dynamic values, conditions, loops, and more.
 Here’s a breakdown of common template actions in Helm, explained in simplified terms:
 - Anything in between Template Action `{{ .Chart.Name }}` is called Action Element
 - Anything in between Template Action `{{ .Chart.Name }}` will be rendered by helm template engine and replace necessary values
 - Anything outside of the template action will be printed as it is.
-
+```t
 Action Elements `{{ .Release.Name }}`
 In Helm, Action Elements are special commands in templates that perform specific actions, like defining templates, including other templates, or running conditional logic. They are written inside {{ ... }} or {{- ... -}} tags in Helm templates and help control how Kubernetes manifests are generated.
 Here’s a breakdown of the main types of Action Elements:
