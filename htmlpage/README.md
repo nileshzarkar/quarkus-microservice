@@ -190,41 +190,71 @@ In Helm, pipelines are a powerful way to simplify template code by chaining func
 Pipelines help keep Helm templates clean, flexible, and easy to read.
 
 ### default Function
-In Helm, the default function is used to provide a fallback value if a variable is missing or undefined. It’s especially helpful when you want to make sure a value is always set, even if it isn’t provided in values.yaml.
+
+In Helm, the default function is used to provide a fallback value if a variable is missing or undefined. 
+
+It’s especially helpful when you want to make sure a value is always set, even if it isn’t provided in values.yaml.
+```t
 {{ default "fallback_value" .Values.someKey }}
+```
     fallback_value: The value to use if .Values.someKey is not set or is empty.
+
     .Values.someKey: The variable you’re checking from values.yaml.
+
 If .Values.someKey is defined, Helm will use its value. If not, Helm will use "fallback_value".
+
 Examples of default in Action
+
 Example 1: Setting a Default Value for a Variable
+
 Suppose you have a variable replicaCount in values.yaml to define the number of replicas for a deployment. If it is not set, you want to default to 1.
+
 Template (deployment.yaml):
+```t
 replicas: {{ default 1 .Values.replicaCount }}
-    If replicaCount is defined in values.yaml (e.g., replicaCount: 3), Helm uses that value.
-    If replicaCount is missing or empty, Helm will use 1 as the default.
+```
+- If replicaCount is defined in values.yaml (e.g., replicaCount: 3), Helm uses that value.
+- If replicaCount is missing or empty, Helm will use 1 as the default.
+
 Example 2: Providing a Default Image Tag
+
 Suppose you have an image tag that should default to latest if not set in values.yaml.
+
 Template (deployment.yaml):
+```t
 image:
   repository: my-app
   tag: {{ default "latest" .Values.image.tag }}
+```
+
 values.yaml:
+```t
 image:
   repository: my-app
+```
   # tag is not specified
-    Here, if image.tag is not specified in values.yaml, Helm will use "latest" as the tag.
-    If you later add image.tag: "1.0.0" in values.yaml, Helm will use "1.0.0" instead.
+  - Here, if image.tag is not specified in values.yaml, Helm will use "latest" as the tag.
+  - If you later add image.tag: "1.0.0" in values.yaml, Helm will use "1.0.0" instead.
+
 Example 3: Setting a Default Label
+
 If you want to add an environment label that defaults to "dev" when not specified:
+
 Template (deployment.yaml):
+```t
 metadata:
   labels:
     environment: {{ default "dev" .Values.environment }}
+```    
 values.yaml:
+```t
 # environment: "production"
-    If environment is commented out or missing in values.yaml, Helm will set the label as environment: dev.
-    If environment is defined as "production", Helm will use that value.
+```
+  - If environment is commented out or missing in values.yaml, Helm will set the label as environment: dev.
+  - If environment is defined as "production", Helm will use that value.
+
 Summary
+
 The default function ensures that Helm charts have fallback values, making templates more robust and flexible. This function helps avoid errors and ensures that necessary values are always present.
 
 ### Controlling White Spaces `{{-  -}}`
