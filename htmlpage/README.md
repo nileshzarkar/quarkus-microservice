@@ -106,24 +106,25 @@ This command:
 - Deploys the NGINX application using the predefined configurations in the Helm chart.
 - Creates a Helm release called mynginx, which includes the Kubernetes resources required for NGINX (e.g., pods, services).	
 
-# Step-04: List Helm Releases
-- This command lists all of the releases for a specified namespace
+Step-04: List Helm Releases
 
-# List Helm Releases (Default Table Output)
+This command lists all of the releases for a specified namespace
+
+List Helm Releases (Default Table Output)
 
 helm list 
 
 helm ls
 
-# List Helm Releases (YAML Output)
+List Helm Releases (YAML Output)
 
 helm list --output=yaml
 
-# List Helm Releases (JSON Output)
+List Helm Releases (JSON Output)
 
 helm list --output=json
 
-# List Helm Releases with namespace flag
+List Helm Releases with namespace flag
 
 helm list --namespace=default
 
@@ -151,7 +152,7 @@ Here:
 - NAMESPACE: The namespace (default).
 - STATUS: The release status (e.g., deployed), indicating the current state of each application.
 
-## Step-05: List Kubernetes Resources
+Step-05: List Kubernetes Resources
 
 kubectl get pods
 
