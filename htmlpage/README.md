@@ -113,17 +113,25 @@ Summary
 These functions are especially helpful when working with mixed data types or when values in values.yaml could be misinterpreted by YAML or Kubernetes manifests.
 
 ### Pipeline
+
 In Helm, a Pipeline is a way to chain multiple template functions together to process data step-by-step. 
+
 It’s represented by the | symbol (pipe) and works similarly to Unix/Linux pipelines, where the output of one function is passed as input to the next function.
+
 Why Use Pipelines?
+
 Pipelines make it easier to format, modify, or control the output of data in Helm templates. 
+
 By combining functions, you can create clean, readable code and apply multiple operations in a single line.
+
 Basic Structure of a Pipeline
 ```t
 {{ <input> | <function1> | <function2> | ... }}
 ```
 Each function processes the input and passes the result to the next function in the chain.
+
 Common Pipeline Functions in Helm
+
 Let’s look at some examples of pipelines and how they are commonly used in Helm templates.
 
 Example 1: Formatting Text with quote and upper
