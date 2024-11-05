@@ -1,5 +1,70 @@
 
 # Helm Tutorial for htmlpage microservice
+
+### 01-Install-Docker-Desktop-and-HelmCLI
+
+### 02-Helm-Install
+
+helm repo list
+
+The command helm repo list is used to display all Helm repositories that have been added to your local Helm client.
+
+Purpose
+
+It helps you see:
+- The names of repositories you've added.
+- The URLs for each repository, indicating where Helm pulls charts from.
+
+Example
+
+When you run:
+
+helm repo list
+
+You’ll get a table like this:
+
+NAME       	URL
+
+my-bitnami 	https://charts.bitnami.com/bitnami
+
+stable     	https://charts.helm.sh/stable
+
+This output shows:
+- my-bitnami: The name you assigned to the Bitnami repository.
+- URL: The address where Helm looks for charts in this repository.
+
+Usage
+
+This command is essential for:
+- Checking which repositories are configured.
+- Verifying repository URLs for troubleshooting or reference.
+
+
+helm repo add <DESIRED-NAME> <HELM-REPO-URL>
+helm repo add mybitnami https://charts.bitnami.com/bitnami
+
+The command helm repo add mybitnami https://charts.bitnami.com/bitnami adds the Bitnami Helm repository to your local Helm setup under the name "mybitnami."
+
+Breakdown of the Command
+
+- helm repo add: This tells Helm to add a new repository.
+- mybitnami: This is the local name you’re giving to the repository, making it easier to refer to later. You can name it anything you want (e.g., bitnami, bitnami-repo).
+- https://charts.bitnami.com/bitnami: This is the URL for the Bitnami Helm repository, which contains pre-packaged charts for popular applications like MySQL, WordPress, and others.
+
+Purpose
+
+By adding the repository:
+
+- You gain access to all the charts Bitnami provides, so you can easily search, install, and update applications from Bitnami using Helm commands.
+- Helm will now look in this URL for any charts you request from mybitnami.
+
+helm search repo <KEY-WORD>
+helm search repo nginx
+helm search repo apache
+helm search repo wildfly
+```
+
+
 ## 12-Helm-Dev-Basics
 
 ### Template Actions `{{ }}`
