@@ -1,19 +1,35 @@
 
 # Helm Tutorial for htmlpage microservice
 ## 12-Helm-Dev-Basics
+
 ### Template Actions `{{ }}`
-In Helm, Template Actions are commands or functions that tell Helm what to do within a template file. They use Go template syntax and are placed inside {{ ... }} braces. These actions help control the content, structure, and behavior of the generated Kubernetes manifests by adding dynamic values, conditions, loops, and more.
+
+In Helm, Template Actions are commands or functions that tell Helm what to do within a template file. 
+
+They use Go template syntax and are placed inside {{ ... }} braces. 
+
+These actions help control the content, structure, and behavior of the generated Kubernetes manifests by adding dynamic values, conditions, loops, and more.
+
 Here’s a breakdown of common template actions in Helm, explained in simplified terms:
+
 - Anything in between Template Action `{{ .Chart.Name }}` is called Action Element
 - Anything in between Template Action `{{ .Chart.Name }}` will be rendered by helm template engine and replace necessary values
 - Anything outside of the template action will be printed as it is.
 
 ### Action Elements `{{ .Release.Name }}`
-In Helm, Action Elements are special commands in templates that perform specific actions, like defining templates, including other templates, or running conditional logic. They are written inside {{ ... }} or {{- ... -}} tags in Helm templates and help control how Kubernetes manifests are generated.
+
+In Helm, Action Elements are special commands in templates that perform specific actions, like defining templates, including other templates, or running conditional logic. 
+
+They are written inside {{ ... }} or {{- ... -}} tags in Helm templates and help control how Kubernetes manifests are generated.
+
 Here’s a breakdown of the main types of Action Elements:
+
 1. Define (define)
+
     Used to create reusable templates that can be called in other parts of the chart.
+
     You define a section of code with define and give it a name, which you can refer to later.
+
     Example:
 ```t    
 {{- define "my-chart.labels" -}}
@@ -22,16 +38,22 @@ version: {{ .Chart.Version }}
 {{- end }}
 ```
 2. Include (include)
+
     Used to call or "include" a template that you defined elsewhere (like in _helpers.tpl).
+
     You use include to insert the output of a defined template into another part of your template.
+
     Example:    
 ```t
 labels:
   {{ include "my-chart.labels" . | indent 4 }}
 ```
 3. If/Else (if, else, else if)
+
     Used to apply conditional logic in templates.
+
     You can create different sections of configuration depending on values from values.yaml or other variables.
+
     Example:
 ```t
 {{- if .Values.production }}
@@ -41,8 +63,11 @@ replicas: 1
 {{- end }}
 ```
 4. With (with)
+
     Sets a specific scope to simplify access to values.
+
     Useful when working with nested values or a specific part of the template to avoid long variable paths.
+
     Example:
 ```t
 {{- with .Values.image }}
@@ -50,8 +75,11 @@ image: {{ .repository }}:{{ .tag }}
 {{- end }}
 ```
 5. Range (range)
+
     Used to loop through lists or maps (like arrays of data in values.yaml).
+
     Allows you to repeat parts of a template for each item in a list or dictionary.
+
     Example:
 ```t    
 env:
@@ -60,6 +88,7 @@ env:
     value: {{ .value }}
   {{- end }}
 ```
+
 # Helm Template Command
 helm template myapp101 .
 1. helm template command helps us to check the output of the chart in fully rendered Kubernetes resource templates. 
@@ -68,8 +97,11 @@ helm template myapp101 .
 ### Quote Function
 In Helm, the quote and dequote functions are used to manage how values are handled as strings, which can be helpful for ensuring the correct data format in YAML or when dealing with complex strings. Here’s a simple explanation of each:
 1. quote Function
+
 The quote function in Helm adds double quotes around a value, ensuring that it’s treated as a string. This is useful for handling values that might look like other types (e.g., numbers or booleans) but need to be read as strings.
+
 Example: Using quote to Ensure a Value is a String
+
 Let’s say you have a values.yaml file with a setting that looks numeric but should be treated as a string:
 ```t
 apiVersion: 2
@@ -85,8 +117,13 @@ apiVersion: "2"
 If you didn’t use quote, apiVersion could be interpreted as a number instead of a string, which can sometimes cause issues in YAML files.
 
 2. dequote Function
-The dequote function removes any leading or trailing double quotes from a value. This is useful if you have a value that comes with quotes but you need it to be unquoted in the output.
+
+The dequote function removes any leading or trailing double quotes from a value. 
+
+This is useful if you have a value that comes with quotes but you need it to be unquoted in the output.
+
 Example: Using dequote to Remove Quotes from a String
+
 Suppose your values.yaml file has:
 ```t
 namespace: '"default"'
@@ -108,8 +145,9 @@ Output:
 namespace: default
 ```
 Summary
-    quote: Adds double quotes around a value, ensuring it’s treated as a string.
-    dequote: Removes double quotes from a value, making it appear without quotes.
+- quote: Adds double quotes around a value, ensuring it’s treated as a string.
+- dequote: Removes double quotes from a value, making it appear without quotes.
+
 These functions are especially helpful when working with mixed data types or when values in values.yaml could be misinterpreted by YAML or Kubernetes manifests.
 
 ### Pipeline
