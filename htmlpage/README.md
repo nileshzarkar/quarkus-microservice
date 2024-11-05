@@ -227,8 +227,12 @@ values.yaml:
 Summary
 The default function ensures that Helm charts have fallback values, making templates more robust and flexible. This function helps avoid errors and ensures that necessary values are always present.
 
-Controlling White Spaces `{{-  -}}`
-In Helm templates, whitespace control is important for creating clean and readable YAML output. Helm uses {{- and -}} to trim spaces from template expressions, allowing you to control how much whitespace appears in the final output.
+### Controlling White Spaces `{{-  -}}`
+
+In Helm templates, whitespace control is important for creating clean and readable YAML output. 
+
+Helm uses {{- and -}} to trim spaces from template expressions, allowing you to control how much whitespace appears in the final output.
+
 Here’s a simplified breakdown of how to use {{- ... -}} to control whitespace.
 1. Basic Syntax of Whitespace Control
     {{ ... }}: Includes spaces around the template expression.
@@ -236,9 +240,12 @@ Here’s a simplified breakdown of how to use {{- ... -}} to control whitespace.
     {{ ... -}}: Trims spaces after the expression.
     {{- ... -}}: Trims both before and after the expression.
 2. Examples of Whitespace Control
+
 Example 1: Removing Extra Blank Lines
+
 Without whitespace control, you may end up with unwanted blank lines in your output.
 Template without Whitespace Control:
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -248,15 +255,19 @@ data:
   {{ if .Values.optionalKey }}
   optionalKey: {{ .Values.optionalKey }}
   {{ end }}
+```t  
 If optionalKey is not defined, this produces extra blank lines in the output:
 Output:
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: my-config
 data:
   key: value
+```
 Template with Whitespace Control:
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -266,39 +277,53 @@ data:
   {{- if .Values.optionalKey }}
   optionalKey: {{ .Values.optionalKey }}
   {{- end }}
+```  
 Output (no extra lines):
+```t
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: my-config
 data:
   key: value
+```  
 Using {{- before if and end removes any unnecessary blank lines.
+
 Example 2: Controlling Indentation in Loops
+
 When using loops, whitespace control helps prevent unintended line breaks.
 Template without Whitespace Control:
+```t
 env:
   {{ range .Values.env }}
   - name: {{ .name }}
     value: {{ .value }}
   {{ end }}
+```  
 If .Values.env has multiple items, this could add blank spaces between items.
+
 Template with Whitespace Control:
+```t
 env:
   {{- range .Values.env }}
   - name: {{ .name }}
     value: {{ .value }}
   {{- end }}
+```  
 Output:
+```t
 env:
   - name: KEY1
     value: VALUE1
   - name: KEY2
     value: VALUE2
+```    
 By using {{- and -}} around range and end, we get a clean list with no extra spaces.
+
 Summary
-    Use {{- and -}} to remove unwanted blank spaces and lines in Helm templates.
-    Helps in keeping YAML files neat and readable, especially when handling optional fields or loops.
+-  Use {{- and -}} to remove unwanted blank spaces and lines in Helm templates.
+-  Helps in keeping YAML files neat and readable, especially when handling optional fields or loops.
+
 This ensures that your final YAML output is well-formatted and free of unnecessary blank lines or spaces.
 
 ### indent function
