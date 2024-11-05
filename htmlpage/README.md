@@ -6,8 +6,11 @@
 ### 02-Helm-Install
 
 helm repo list
+
 The command helm repo list is used to display all Helm repositories that have been added to your local Helm client.
+
 Purpose
+
 It helps you see:
 - The names of repositories you've added.
 - The URLs for each repository, indicating where Helm pulls charts from.
