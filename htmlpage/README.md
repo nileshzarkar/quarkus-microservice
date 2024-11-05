@@ -5,40 +5,43 @@
 
 ### 02-Helm-Install
 
+Step-01: Introduction
+- We will use the following commands as part of this demo
+- helm repo list
+- helm repo add
+- helm repo update
+- helm search repo
+- helm install
+- helm list
+- helm uninstall 
+
+Step-02: List, Add and Search Helm Repository
+- [Bitnami Applications packaged using Helm](https://bitnami.com/stacks/helm)
+- [Search for Helm Charts at Artifacthub.io](https://artifacthub.io/)
+```t
+# List Helm Repositories
 helm repo list
 
 The command helm repo list is used to display all Helm repositories that have been added to your local Helm client.
-
 Purpose
-
 It helps you see:
-- The names of repositories you've added.
+- The names of repositories you have added.
 - The URLs for each repository, indicating where Helm pulls charts from.
-
 Example
-
 When you run:
-
 helm repo list
-
 You’ll get a table like this:
-
 NAME       	URL
-
 my-bitnami 	https://charts.bitnami.com/bitnami
-
 stable     	https://charts.helm.sh/stable
-
 This output shows:
 - my-bitnami: The name you assigned to the Bitnami repository.
 - URL: The address where Helm looks for charts in this repository.
-
 Usage
-
 This command is essential for:
 - Checking which repositories are configured.
 - Verifying repository URLs for troubleshooting or reference.
-
+```
 
 helm repo add <DESIRED-NAME> <HELM-REPO-URL>
 helm repo add mybitnami https://charts.bitnami.com/bitnami
