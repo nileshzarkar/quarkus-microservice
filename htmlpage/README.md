@@ -242,7 +242,7 @@ Here’s a simplified breakdown of how to use {{- ... -}} to control whitespace.
     {{ ... -}}: Trims spaces after the expression.
 
     {{- ... -}}: Trims both before and after the expression.
-    
+
 2. Examples of Whitespace Control
 
 Example 1: Removing Extra Blank Lines
@@ -259,7 +259,7 @@ data:
   {{ if .Values.optionalKey }}
   optionalKey: {{ .Values.optionalKey }}
   {{ end }}
-```t  
+```
 If optionalKey is not defined, this produces extra blank lines in the output:
 Output:
 ```t
