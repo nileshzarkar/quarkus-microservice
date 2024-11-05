@@ -296,6 +296,7 @@ Using {{- before if and end removes any unnecessary blank lines.
 Example 2: Controlling Indentation in Loops
 
 When using loops, whitespace control helps prevent unintended line breaks.
+
 Template without Whitespace Control:
 ```t
 env:
