@@ -85,26 +85,19 @@ Hang tight while we grab the latest from your chart repositories...
 Update Complete.
 ```
 
+```t
 helm install <RELEASE-NAME> <repo_name_in_your_local_desktop/chart_name>
-
 helm install mynginx mybitnami/nginx
-
 The command helm install mynginx mybitnami/nginx installs the nginx application from the mybitnami repository into your Kubernetes cluster using Helm.
-
 Breakdown of the Command
-
     helm install: Tells Helm to install a chart.
-
     mynginx: The name you’re assigning to this Helm release. This release name helps you identify and manage the deployed application in Kubernetes.
-
     mybitnami/nginx: Refers to the nginx chart in the mybitnami repository. The prefix mybitnami is the name you assigned to the Bitnami repository when you added it with helm repo add.
-
 Purpose
-
 This command:
-
 - Deploys the NGINX application using the predefined configurations in the Helm chart.
 - Creates a Helm release called mynginx, which includes the Kubernetes resources required for NGINX (e.g., pods, services).	
+```
 
 Step-04: List Helm Releases
 
