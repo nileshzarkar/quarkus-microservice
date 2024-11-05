@@ -231,9 +231,8 @@ values.yaml:
 image:
   repository: my-app
 ```
-  # tag is not specified
-  - Here, if image.tag is not specified in values.yaml, Helm will use "latest" as the tag.
-  - If you later add image.tag: "1.0.0" in values.yaml, Helm will use "1.0.0" instead.
+- Here, if image.tag is not specified in values.yaml, Helm will use "latest" as the tag.
+- If you later add image.tag: "1.0.0" in values.yaml, Helm will use "1.0.0" instead.
 
 Example 3: Setting a Default Label
 
