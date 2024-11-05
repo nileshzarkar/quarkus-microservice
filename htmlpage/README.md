@@ -59,10 +59,142 @@ By adding the repository:
 - Helm will now look in this URL for any charts you request from mybitnami.
 
 helm search repo <KEY-WORD>
+
 helm search repo nginx
+
 helm search repo apache
+
 helm search repo wildfly
 
+helm repo update  # Make sure we get the latest list of charts
+
+The command helm repo update refreshes your local Helm client’s knowledge of the charts available in all added repositories.
+
+Purpose
+
+- It ensures that Helm fetches the latest list of charts and versions from each repository you’ve added.
+- This is essential to get updates for charts that may have been recently added or updated in the repository, allowing you to install or upgrade to the latest versions.
+
+Result
+
+After running this command, Helm will download the latest index of charts from each repository, and you’ll see a message like:
+
+Hang tight while we grab the latest from your chart repositories...
+
+...Successfully got an update from the "mybitnami" chart repository
+
+Update Complete.
+
+helm install <RELEASE-NAME> <repo_name_in_your_local_desktop/chart_name>
+
+helm install mynginx mybitnami/nginx
+
+The command helm install mynginx mybitnami/nginx installs the nginx application from the mybitnami repository into your Kubernetes cluster using Helm.
+
+Breakdown of the Command
+
+    helm install: Tells Helm to install a chart.
+
+    mynginx: The name you’re assigning to this Helm release. This release name helps you identify and manage the deployed application in Kubernetes.
+
+    mybitnami/nginx: Refers to the nginx chart in the mybitnami repository. The prefix mybitnami is the name you assigned to the Bitnami repository when you added it with helm repo add.
+
+Purpose
+
+This command:
+
+- Deploys the NGINX application using the predefined configurations in the Helm chart.
+- Creates a Helm release called mynginx, which includes the Kubernetes resources required for NGINX (e.g., pods, services).	
+
+# Step-04: List Helm Releases
+- This command lists all of the releases for a specified namespace
+
+# List Helm Releases (Default Table Output)
+
+helm list 
+
+helm ls
+
+# List Helm Releases (YAML Output)
+
+helm list --output=yaml
+
+# List Helm Releases (JSON Output)
+
+helm list --output=json
+
+# List Helm Releases with namespace flag
+
+helm list --namespace=default
+
+helm list -n default
+
+The command helm list --namespace=default lists all Helm releases that have been installed in the default namespace of your Kubernetes cluster.
+
+Breakdown of the Command
+- helm list: This command lists all Helm releases in the specified namespace (or all namespaces if no specific one is provided).
+- --namespace=default: This option limits the output to releases within the default namespace.
+Purpose
+- It helps you view the status and details of all releases deployed specifically in the default namespace.
+- Useful for managing releases in different namespaces and isolating deployments.
+
+Running the command might show:
+
+NAME       	NAMESPACE	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
+
+mynginx    	default  	1       	2023-10-25 10:00:00.000000 +0000 UTC	deployed	nginx-9.1.2   	1.19.10
+
+mywordpress	default  	1       	2023-10-25 11:00:00.000000 +0000 UTC	deployed	wordpress-10.0.0	5.7.2
+
+Here:
+- NAME: The release name (e.g., mynginx, mywordpress).
+- NAMESPACE: The namespace (default).
+- STATUS: The release status (e.g., deployed), indicating the current state of each application.
+
+## Step-05: List Kubernetes Resources
+
+kubectl get pods
+
+kubectl get svc
+
+Observation: Review the EXTERNAL-IP field and you will see it as localhost. Access the nginx page from local desktop localhost
+
+http://localhost:80
+
+http://127.0.0.1:80
+
+curl http://localhost:80
+
+curl http://127.0.0.1:80
+
+helm ls
+
+helm uninstall <RELEASE-NAME>
+
+helm uninstall mynginx 
+
+The command helm uninstall mynginx removes the Helm release named mynginx from your Kubernetes cluster.
+
+Breakdown of the Command
+- helm uninstall: Tells Helm to delete a specified release and all associated resources.
+- mynginx: The name of the release you want to uninstall, which was provided when you installed the chart.
+
+Purpose
+- It deletes all Kubernetes resources created by the mynginx release, such as pods, services, and deployments, effectively removing the application from the cluster.
+- This command is useful when you no longer need the application or want to clear resources.
+
+Example Usage
+
+After running:
+
+helm uninstall mynginx
+
+You’ll see a confirmation message:
+
+release "mynginx" uninstalled
+
+Note
+- This command only removes the Helm-managed resources for mynginx. If any other manually created resources depend on it, they’ll need to be deleted separately.
 
 
 ## 12-Helm-Dev-Basics
