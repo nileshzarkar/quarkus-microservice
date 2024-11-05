@@ -197,8 +197,8 @@ It’s especially helpful when you want to make sure a value is always set, even
 ```t
 {{ default "fallback_value" .Values.someKey }}
 ```
-  - fallback_value: The value to use if .Values.someKey is not set or is empty.
-  - .Values.someKey: The variable you’re checking from values.yaml.
+- fallback_value: The value to use if .Values.someKey is not set or is empty.
+- .Values.someKey: The variable you’re checking from values.yaml.
 
 If .Values.someKey is defined, Helm will use its value. If not, Helm will use "fallback_value".
 
