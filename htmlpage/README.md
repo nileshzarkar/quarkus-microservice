@@ -236,9 +236,13 @@ Helm uses {{- and -}} to trim spaces from template expressions, allowing you to 
 Here’s a simplified breakdown of how to use {{- ... -}} to control whitespace.
 1. Basic Syntax of Whitespace Control
     {{ ... }}: Includes spaces around the template expression.
+
     {{- ... }}: Trims spaces before the expression.
+
     {{ ... -}}: Trims spaces after the expression.
+
     {{- ... -}}: Trims both before and after the expression.
+    
 2. Examples of Whitespace Control
 
 Example 1: Removing Extra Blank Lines
