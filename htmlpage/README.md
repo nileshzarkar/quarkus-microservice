@@ -29,11 +29,15 @@ It helps you see:
 - The URLs for each repository, indicating where Helm pulls charts from.
 Example
 When you run:
+
 helm repo list
+
 You’ll get a table like this:
+
 NAME       	URL
 my-bitnami 	https://charts.bitnami.com/bitnami
 stable     	https://charts.helm.sh/stable
+
 This output shows:
 - my-bitnami: The name you assigned to the Bitnami repository.
 - URL: The address where Helm looks for charts in this repository.
@@ -43,50 +47,43 @@ This command is essential for:
 - Verifying repository URLs for troubleshooting or reference.
 ```
 
+```t
 helm repo add <DESIRED-NAME> <HELM-REPO-URL>
 helm repo add mybitnami https://charts.bitnami.com/bitnami
 
 The command helm repo add mybitnami https://charts.bitnami.com/bitnami adds the Bitnami Helm repository to your local Helm setup under the name "mybitnami."
 
 Breakdown of the Command
-
 - helm repo add: This tells Helm to add a new repository.
 - mybitnami: This is the local name you’re giving to the repository, making it easier to refer to later. You can name it anything you want (e.g., bitnami, bitnami-repo).
 - https://charts.bitnami.com/bitnami: This is the URL for the Bitnami Helm repository, which contains pre-packaged charts for popular applications like MySQL, WordPress, and others.
-
 Purpose
-
 By adding the repository:
-
 - You gain access to all the charts Bitnami provides, so you can easily search, install, and update applications from Bitnami using Helm commands.
 - Helm will now look in this URL for any charts you request from mybitnami.
+```
 
+```t
 helm search repo <KEY-WORD>
-
 helm search repo nginx
-
 helm search repo apache
-
 helm search repo wildfly
+```
 
+```t
 helm repo update  # Make sure we get the latest list of charts
 
 The command helm repo update refreshes your local Helm client’s knowledge of the charts available in all added repositories.
-
 Purpose
-
 - It ensures that Helm fetches the latest list of charts and versions from each repository you’ve added.
 - This is essential to get updates for charts that may have been recently added or updated in the repository, allowing you to install or upgrade to the latest versions.
-
 Result
-
 After running this command, Helm will download the latest index of charts from each repository, and you’ll see a message like:
 
 Hang tight while we grab the latest from your chart repositories...
-
 ...Successfully got an update from the "mybitnami" chart repository
-
 Update Complete.
+```
 
 helm install <RELEASE-NAME> <repo_name_in_your_local_desktop/chart_name>
 
