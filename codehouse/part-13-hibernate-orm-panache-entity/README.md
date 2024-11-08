@@ -1,73 +1,151 @@
 # part-13-hibernate-orm-panache-entity
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Create postgresql docker container locally
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+Step-1
+docker pull postgres
 
-## Running the application in dev mode
+Step-2
+docker run --name my_postgres -e POSTGRES_USER=myuser -e POSTGRES_PASSWORD=mypassword -e POSTGRES_DB=laptops -p 5432:5432 -d postgres
+Here’s a breakdown of the options:
 
-You can run your application in dev mode that enables live coding using:
+    --name my_postgres: Names the container my_postgres (you can choose any name you prefer).
+    -e POSTGRES_USER=myuser: Sets the PostgreSQL user to myuser.
+    -e POSTGRES_PASSWORD=mypassword: Sets the PostgreSQL password to mypassword.
+    -e POSTGRES_DB=mydatabase: Creates a database named mydatabase.
+    -p 5432:5432: Maps port 5432 on your host to port 5432 on the container, allowing external connections.
+    -d: Runs the container in detached mode, so it runs in the background.
 
-```shell script
-./mvnw compile quarkus:dev
-```
+Step-3
+docker exec -it my_postgres psql -U myuser -d laptops
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Connect with DBeaver
+localhost 5432
+laptops
+myuser
+mypassword
 
-## Packaging and running the application
+===================
 
-The application can be packaged using:
+@Entity
+public class Laptop {
 
-```shell script
-./mvnw package
-```
+    String name;
+    String brand;
+    int ram;
+    int externalStorage;
+   //setter and getter
+}
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+This is simple POJO class to enable this class and empower it to perform CRUD operations we extend it io.quarkus.hibernate.orm.panache.PanacheEntity;
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+@Entity
+public class Laptop extends PanacheEntity {
+    ...
+}
 
-If you want to build an _über-jar_, execute the following command:
+Create the resource class for all CRUD operations using Panache methods
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+@Path("/laptop")
+public class LaptopResource {
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllLaptops() {
+        List<Laptop> laptops = Laptop.listAll();
+        return Response.ok(laptops).build();
+    }
 
-## Creating a native executable
+    @Transactional
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addLaptop(Laptop laptop) {
+        Laptop.persist(laptop);
+        if(laptop.isPersistent()) {
+            return Response.created(URI.create("/laptop/" + laptop.id)).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
 
-You can create a native executable using:
+    @Transactional
+    @Path("/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLaptop(@PathParam("id") long id) {
+        Laptop laptop = Laptop.findById(id);
+        return Response.ok(laptop).build();
+    }
 
-```shell script
-./mvnw package -Dnative
-```
+    @Transactional
+    @Path("/{id}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateLaptop(@PathParam("id") long id, Laptop laptop) {
+        Optional<Laptop> optionalLaptop = Laptop.findByIdOptional(id);
+        if(optionalLaptop.isPresent()){
+            Laptop existingLaptop = optionalLaptop.get();
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+            if(Objects.nonNull(laptop.getName())) {
+                existingLaptop.setName(laptop.getName());
+            }
+            if(Objects.nonNull(laptop.getBrand())) {
+                existingLaptop.setBrand(laptop.getBrand());
+            } 
+            if(Objects.nonNull(laptop.getRam()))) {
+                existingLaptop.setRam(laptop.getRam());
+            } 
+            if(Objects.nonNull(laptop.getExternalStorage())) {
+                existingLaptop.setExternalStorage(laptop.getExternalStorage());
+            }  
+            
+            existingLaptop.persist();
+            if(existingLaptop.isPersistent()){
+                return Response.created(URI.create("/laptop/" + id)).build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+    @Transactional
+    @Path("/{id}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteLaptop(@PathParam("id") long id) {
+        boolean isDeleted = Laptop.deleteById(id);
+        if(isDeleted) {
+            return Response.noContent().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
 
-You can then execute your native executable with: `./target/part-13-hibernate-orm-panache-entity-1.0.0-SNAPSHOT-runner`
+}
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
 
-## Related Guides
+Add database properties
+# Datasource configuration
+quarkus.datasource.db-kind=postgresql
+quarkus.datasource.username=myuser
+quarkus.datasource.password=mypassword
+quarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5432/laptops
+quarkus.hibernate-orm.log.sql=true
+quarkus.hibernate-orm.database.generation=drop-and-create
 
-- RESTEasy Classic's REST Client ([guide](https://quarkus.io/guides/resteasy-client)): Call REST services
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
+Add swagger-ui dependency to test the endpoints
 
-## Provided Code
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+        </dependency>
 
-### RESTEasy Client
+http://localhost:8080/q/swagger-ui
 
-Invoke different services through REST with JSON
 
-[Related guide section...](https://quarkus.io/guides/resteasy-client)
 
-### RESTEasy JAX-RS
 
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
