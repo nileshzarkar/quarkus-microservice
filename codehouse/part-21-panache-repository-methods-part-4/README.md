@@ -1,73 +1,57 @@
 # part-21-panache-repository-methods-part-4
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+Pagination
 
-## Running the application in dev mode
+Step-1
+@Entity
+public class SimCard {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+    Long number;
+    String provider;
+    boolean isActive;
 
-You can run your application in dev mode that enables live coding using:
+    //getter setter and toString
+}
 
-```shell script
-./mvnw compile quarkus:dev
-```
+Step-2
+@ApplicationScoped
+public class SimCardRepository implements PanacheRepository<SimCard> {
+}
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Step-3
+@RegisterForReflection
+public class SimProjection {
+    public Long number;
+    public String provider;
 
-## Packaging and running the application
+    public SimProjection(Long number, String provider) {
+        this.number = number;
+        this.provider = provider;
+    }
 
-The application can be packaged using:
+    public Long getNumber() {
+        return number;
+    }
 
-```shell script
-./mvnw package
-```
+    public void setNumber(Long number) {
+        this.number = number;
+    }
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+    public String getProvider() {
+        return provider;
+    }
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+}
 
-If you want to build an _über-jar_, execute the following command:
+Step-4
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+Step-5
 
-## Creating a native executable
 
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/part-21-panache-repository-methods-part-4-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- RESTEasy Classic's REST Client ([guide](https://quarkus.io/guides/resteasy-client)): Call REST services
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-
-## Provided Code
-
-### RESTEasy Client
-
-Invoke different services through REST with JSON
-
-[Related guide section...](https://quarkus.io/guides/resteasy-client)
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
