@@ -1,73 +1,140 @@
 # part-20-panache-repository-methods-part-3
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Step-1
+@Entity
+public class SimCard {
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+    Long number;
+    String provider;
+    boolean isActive;
 
-## Running the application in dev mode
+   //setter and getter
+}
 
-You can run your application in dev mode that enables live coding using:
+Step-2
+@ApplicationScoped
+public class SimCardRepository implements PanacheRepository<SimCard> {
 
-```shell script
-./mvnw compile quarkus:dev
-```
+}
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Step-3
+@Path("/")
+public class Resource {
 
-## Packaging and running the application
+    @Inject
+    SimCardRepository simCardRepository;
 
-The application can be packaged using:
+    // =============================================================================
 
-```shell script
-./mvnw package
-```
+    @GET
+    @Path("/findByIdOptional_SimCard/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findByIdOptionalSimCard(@PathParam("id") Long id) {
+        Optional<SimCard> OptionalSimCard = simCardRepository.findByIdOptional(id);
+        if (OptionalSimCard.isPresent()) {
+            SimCard simCard = OptionalSimCard.get();
+            return Response.ok(simCard).build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+    @GET
+    @Path("/conditional_count_SimCard/{provider}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response conditionalCountSimCard(@PathParam("provider") String simProvider) {
+        //select count(*) from SimCard where provider =  @PathParam("provider")
+        long count = simCardRepository.count("provider", simProvider);
+        return Response.ok(count).build();
+    }
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+    @GET
+    @Path("/conditional_delete_SimCard/{provider}")
+    @Transactional
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response conditionalDeleteSimCard(@PathParam("provider") String simProvider) {
+        // delete from SimCard where provider =  @PathParam("provider")
+        long delete = simCardRepository.delete("provider", simProvider);
+        return Response.ok(delete).build();
+    }
 
-If you want to build an _über-jar_, execute the following command:
+    @GET
+    @Path("/conditionalDeleteById_SimCard/{id}")
+    @Transactional
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response conditionalDeleteByIdSimCard(@PathParam("id") Long id) {
+        // delete from SimCard where id =  @PathParam("id")
+        boolean isDeleted = simCardRepository.deleteById(id);
+        if (isDeleted)
+            return Response.ok("Sim card deleted successfully").build();
+        else
+            return Response.ok("Something went wrong").build();
+    }
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+    @GET
+    @Path("/update/{id}/{provider}")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Transactional
+    public Response conditionalDeleteSimCard(@PathParam("id") Long id, @PathParam("provider") String provider) {
+        // update SimCard set provider = @PathParam("provider") where id = @PathParam("id")
+        int update = simCardRepository.update("provider =?1 where id =?2", provider, id);
+        if (update == 1)
+            return Response.ok("Sim card provider updated successfully").build();
+        else
+            return Response.ok("Something went wrong").build();
+    }
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+    @GET
+    @Path("/sortBy")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response sortBySimCard() {
+        //select * from SimCard where isActive=false order by provider desc
+        List<SimCard> simCardList = simCardRepository
+                .list("isActive",
+                        Sort.descending("provider"),
+                        false);
+            return Response.ok(simCardList).build();
+    }
 
-## Creating a native executable
+}
 
-You can create a native executable using:
+Step-4
+test the endpoints using Swagger UI
+http://localhost:8080/q/swagger-ui
 
-```shell script
-./mvnw package -Dnative
-```
+POST /persist_SimCard
+{
+  "number": 9881719848,
+  "provider": "idea",
+  "active": true
+}
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+{
+  "number": 9823150966,
+  "provider": "jio",
+  "active": true
+}
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+{
+  "number": 7564738475,
+  "provider": "bsnl",
+  "active": false
+}
 
-You can then execute your native executable with: `./target/part-20-panache-repository-methods-part-3-1.0.0-SNAPSHOT-runner`
+GET /findByIdOptional_SimCard/{id}
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+GET /conditional_count_SimCard/{provider}
 
-## Related Guides
+GET /conditionalDeleteById_SimCard/{id}
 
-- RESTEasy Classic's REST Client ([guide](https://quarkus.io/guides/resteasy-client)): Call REST services
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
+GET /conditional_delete_SimCard/{provider}
 
-## Provided Code
+GET /update/{id}/{provider}
 
-### RESTEasy Client
 
-Invoke different services through REST with JSON
 
-[Related guide section...](https://quarkus.io/guides/resteasy-client)
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+Multiple filters : 
+find("isActive=?1 and provider=?2",true,jio)

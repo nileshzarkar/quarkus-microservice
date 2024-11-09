@@ -81,7 +81,7 @@ public class Resource {
     }
 }
 
-Step-5
+Step-4
 test the endpoints using Swagger UI
 http://localhost:8080/q/swagger-ui
 
