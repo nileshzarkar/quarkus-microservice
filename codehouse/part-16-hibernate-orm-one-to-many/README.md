@@ -1,73 +1,144 @@
 # part-16-hibernate-orm-one-to-many
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+So in one-to-one relationship we would make a extra column in one of the tables. This extra column would represent the primary key of that other table.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+In one to many relationship we have to always make a new field - columns on the many side table.
 
-## Running the application in dev mode
+A citizen can have many sim cards
+So for example we have table Citizen [id, name, gender] and SimCard [id, number, provider]
+The extra field or column will always be created on the Simcard table [id, number, provider, citizen_id]
 
-You can run your application in dev mode that enables live coding using:
+Step-1
+@Entity
+public class Citizen {
 
-```shell script
-./mvnw compile quarkus:dev
-```
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)             
+    Long id;
+    String name;
+    String gender;
+   // setter and getter
+}
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+@Entity
+public class SimCard {
 
-## Packaging and running the application
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+    Long number;
+    String provider;
+    boolean isActive;
+   // setter and getter
+}
 
-The application can be packaged using:
+Step-2
+update application.properties
+# Datasource configuration
+quarkus.datasource.db-kind=postgresql
+quarkus.datasource.username=myuser
+quarkus.datasource.password=mypassword
+quarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5432/adharcitizen
+quarkus.hibernate-orm.log.sql=true
+quarkus.hibernate-orm.database.generation=drop-and-create
 
-```shell script
-./mvnw package
-```
+Step-3
+Create Citizen and Simcard repository
+@ApplicationScoped
+public class SimCardRepository implements PanacheRepository<SimCard> {
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+}
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+@ApplicationScoped
+public class CitizenRepository implements PanacheRepository<Citizen> {
 
-If you want to build an _über-jar_, execute the following command:
+}
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+Step-4
+Configuring the one-to-many relationship between Citizen and SimCard
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+@Entity
+public class Citizen {
 
-## Creating a native executable
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)             
+    Long id;
+    String name;
+    String gender;
 
-You can create a native executable using:
+    @OneToMany
+    SimCard simCard;
+ ...
+}
 
-```shell script
-./mvnw package -Dnative
-```
+If we run the application we will have 2 tables Citizen and SimCard.
+An in Simcard table we will have extra columns named "citizen_id" 
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+Caused by: org.hibernate.AnnotationException: Property 'com.example.Citizen.simCard' is not a collection and may not be a '@OneToMany', '@ManyToMany', or '@ElementCollection'
+    @OneToMany
+    List<SimCard> simCards;
+  Also add setter and getter
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+  An in Simcard table we will have extra columns named "citizen_id"  - THIS DID NOT HAPPEN
 
-You can then execute your native executable with: `./target/part-16-hibernate-orm-one-to-many-1.0.0-SNAPSHOT-runner`
+What happened is this : 
+Created table 1 : citizen 
+Created table 2 : citizen_simcard
+Created table 3 : simcard
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+What is inside this table citizen_simcard 
+one column    = citizen_id 
+second column = simcard_id
+citizen_id  simcard_id
+    1            1
+    1            2
+Here we have the one-to-many relationship records...
 
-## Related Guides
+We do not want this structure
 
-- RESTEasy Classic's REST Client ([guide](https://quarkus.io/guides/resteasy-client)): Call REST services
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
+We want only 2 tables citizen and simcard (with a new column named 'citizen_id' in simcard table)
 
-## Provided Code
+    @OneToMany(mappedBy = "citizen", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    List<SimCard> simCards;
 
-### RESTEasy Client
+    @ManyToOne
+    Citizen citizen;
 
-Invoke different services through REST with JSON
+If we run the application again we will have 2 tables citizen and simcard (with a new column named 'citizen_id' in simcard table)
 
-[Related guide section...](https://quarkus.io/guides/resteasy-client)
 
-### RESTEasy JAX-RS
+BIDIRECTIONAL RELATIONSHIPS
+The issue you're facing with Jackson serialization is likely because of a bidirectional relationship between Citizen and SimCard, causing a circular reference when Jackson tries to serialize the data. This is a common issue when using @OneToMany and @ManyToOne relationships. Jackson tries to serialize both entities, leading to an infinite loop.
 
-Easily start your RESTful Web Services
+Explanation
 
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+    @JsonManagedReference: Used on the parent side of the relationship (Citizen), it indicates that Jackson should manage the serialization of this relationship.
+    @JsonBackReference: Used on the child side of the relationship (SimCard), it prevents Jackson from serializing this property, thus avoiding a circular reference.
+
+To solve this, you can use the @JsonManagedReference and @JsonBackReference annotations to handle the serialization properly by breaking the circular dependency.
+
+Here’s how to modify your Citizen and SimCard entities:
+
+    Add @JsonManagedReference in Citizen on the simCards field.
+    Add @JsonBackReference in SimCard on the citizen field.
+
+    @ManyToOne
+    @JsonBackReference
+    Citizen citizen;
+
+    @OneToMany(mappedBy = "citizen", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    List<SimCard> simCards;
+
+Alternative Solution with @JsonIgnoreProperties
+
+Alternatively, you can also use @JsonIgnoreProperties on the citizen field in SimCard to ignore the back reference during serialization:
+@ManyToOne
+@JsonIgnoreProperties("simCards")
+Citizen citizen;
+
+This approach ignores the simCards field when serializing citizen in SimCard, breaking the cycle and avoiding serialization issues.
+
+GET http://localhost:8080/save
+GET http://localhost:8080/get
+
