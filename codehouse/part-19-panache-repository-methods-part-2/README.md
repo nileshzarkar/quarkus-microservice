@@ -1,73 +1,107 @@
 # part-19-panache-repository-methods-part-2
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Step-1
+@Entity
+public class SimCard {
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+    Long number;
+    String provider;
+    boolean isActive;
 
-## Running the application in dev mode
+   //setter and getter
+}
 
-You can run your application in dev mode that enables live coding using:
+Step-2
+@ApplicationScoped
+public class SimCardRepository implements PanacheRepository<SimCard> {
 
-```shell script
-./mvnw compile quarkus:dev
-```
+}
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Step-3
+@Path("/")
+public class Resource {
 
-## Packaging and running the application
+    @Inject
+    SimCardRepository simCardRepository;
 
-The application can be packaged using:
+    @POST
+    @Transactional
+    @Path("/persist_SimCard")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response saveSimCard(@RequestBody SimCard simCard) {
+        simCardRepository.persist(simCard);
+        if (simCardRepository.isPersistent(simCard)) {
+            return Response.ok(new String("Sim Card saved successfully")).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
 
-```shell script
-./mvnw package
-```
+    @GET
+    @Path("/listAll_SimCard")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listAllSimCard() {
+        List<SimCard> simCards = simCardRepository.listAll();
+        return Response.ok(simCards).build();
+    }
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+    @GET
+    @Path("/findById_SimCard/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findByIdSimCard(@PathParam("id") Long simCardId) {
+        SimCard simCard = simCardRepository.findById(simCardId);
+        return Response.ok(simCard).build();
+    }
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+    @GET
+    @Path("/count_SimCard")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response countSimCard(@PathParam("id") Long simCardId) {
+        long count = simCardRepository.count();
+        return Response.ok(count).build();
+    }
 
-If you want to build an _über-jar_, execute the following command:
+    @GET
+    @Path("/provider_list_SimCard/{provider}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response providerListSimCard(@PathParam("provider") String simCardProvider) {
+        List<SimCard> simCardList = simCardRepository.list("provider", simCardProvider);
+        return Response.ok(simCardList).build();
+    }
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+    @GET
+    @Path("/active_list_SimCard")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response activeListSimCard() {
+        List<SimCard> simCardList = simCardRepository.list("isActive", true);
+        return Response.ok(simCardList).build();
+    }
+}
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+Step-5
+test the endpoints using Swagger UI
+http://localhost:8080/q/swagger-ui
 
-## Creating a native executable
+POST /persist_SimCard
+{
+  "number": 9823150966,
+  "provider": "jio",
+  "active": true
+}
 
-You can create a native executable using:
+GET /listAll_SimCard
 
-```shell script
-./mvnw package -Dnative
-```
+GET /findById_SimCard/{id}
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+GET /count_SimCard
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+GET /provider_list_SimCard/{provider}
 
-You can then execute your native executable with: `./target/part-19-panache-repository-methods-part-2-1.0.0-SNAPSHOT-runner`
+GET /active_list_SimCard
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
 
-## Related Guides
-
-- RESTEasy Classic's REST Client ([guide](https://quarkus.io/guides/resteasy-client)): Call REST services
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-
-## Provided Code
-
-### RESTEasy Client
-
-Invoke different services through REST with JSON
-
-[Related guide section...](https://quarkus.io/guides/resteasy-client)
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+Multiple filters : 
+find("isActive=?1 and provider=?2",true,jio)
