@@ -1,73 +1,77 @@
 # part-18-panache-repository-methods-part-1
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+io.quarkus.hibernate.orm.panache.PanacheRepository is an interface provided by Quarkus to simplify repository operations when working with Hibernate ORM and JPA entities. 
+It is part of the Panache API, which offers a more concise and readable syntax for data access operations compared to standard JPA.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+When using PanacheRepository, you can easily perform common database operations (such as find, persist, delete, and update) without writing boilerplate code.
+Key Features of PanacheRepository
 
-## Running the application in dev mode
+    Simplified Data Access: Provides built-in methods for CRUD operations, eliminating the need to write boilerplate code for basic database operations.
+    Easy Querying: Supports query methods that can be called directly on the repository without needing to define them explicitly.
+    Type Safety: PanacheRepository is a generic interface, meaning it enforces type safety by working directly with your entity class.
 
-You can run your application in dev mode that enables live coding using:
 
-```shell script
-./mvnw compile quarkus:dev
-```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Step-1
+Create entity class 
+@Entity
+public class SimCard {
 
-## Packaging and running the application
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+    Long number;
+    String provider;
+    boolean isActive;
 
-The application can be packaged using:
+    //setter and getter
+}
 
-```shell script
-./mvnw package
-```
+Step-2
+@ApplicationScoped
+public class SimCardRepository implements PanacheRepository<SimCard> {
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+}
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+Step-3
+@Path("/")
+public class Resource {
 
-If you want to build an _über-jar_, execute the following command:
+    @Inject
+    SimCardRepository simCardRepository;
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+    @GET
+    @Path("save_simcard")
+    @Transactional
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response saveSimCard(){
+        String[] provider = {"Jio","Airtel","VI","Aircel","BSNL"};
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+        for(long i=0L;i<20L;i++){
+            SimCard simCard = new SimCard();
+            simCard.setNumber(8876223210L +i);
+            simCard.setProvider(provider[(int)i%provider.length]);
+            simCard.setActive(i/3L==0);
 
-## Creating a native executable
+            simCardRepository.persist(simCard);
+            if(simCardRepository.isPersistent(simCard)){
+                System.out.println(simCard + " saved Successfully");
+            }else{
+                System.out.println(simCard + " not saved. Please check");
+            }
+        }
 
-You can create a native executable using:
+        return Response.ok(new String("Sim Card Saved Successfully")).build();
+    }
 
-```shell script
-./mvnw package -Dnative
-```
+    @GET
+    @Path("test_methods")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response testMethods(){
+        List<SimCard> simCards = simCardRepository.listAll();
+        return Response.ok(simCards).build();
+    }
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/part-18-panache-repository-methods-part-1-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- RESTEasy Classic's REST Client ([guide](https://quarkus.io/guides/resteasy-client)): Call REST services
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-
-## Provided Code
-
-### RESTEasy Client
-
-Invoke different services through REST with JSON
-
-[Related guide section...](https://quarkus.io/guides/resteasy-client)
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+}
